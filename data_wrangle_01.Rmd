@@ -1,0 +1,163 @@
+---
+title: "finalproj data joining"
+author: "Shelly Bai"
+date: "2022-11-09"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(ggplot2)
+library(lubridate)
+library(dplyr)
+library(rvest)
+library(magrittr)
+library(ggmap)
+library(stringr)
+library(rworldmap)
+
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+```{r}
+#Importing datasets
+
+library(readr)
+id_health_medstaff <- read_csv("~/GitHub/DS_112_Project/resources/indicators/id_heal_04/input.csv", 
+    col_types = cols(`1995` = col_double(), 
+        `2015` = col_double()))
+library(readr)
+gdp <- read_csv("~/GitHub/DS_112_Project/resources/indicators/gdp/score.csv", 
+    col_types = cols(`1995` = col_skip(), 
+        `1996` = col_skip(), `1997` = col_skip(), 
+        `1998` = col_skip(), `1999` = col_skip(), 
+        `2000` = col_skip(), `2001` = col_skip(), 
+        `2002` = col_skip(), `2003` = col_skip(), 
+        `2004` = col_skip(), `2005` = col_skip(), 
+        `2006` = col_skip(), `2007` = col_skip(), 
+        `2008` = col_skip(), `2009` = col_skip(), 
+        `2010` = col_skip(), `2011` = col_skip(), 
+        `2012` = col_skip(), `2013` = col_skip(), 
+        `2014` = col_skip(), `2015` = col_skip(), 
+        `2016` = col_skip(), `2017` = col_skip(), 
+        `2018` = col_skip(), `2019` = col_skip()))
+View(gdp)
+
+pop <- read_csv("~/GitHub/DS_112_Project/resources/indicators/pop/input.csv", 
+    col_types = cols(`1995` = col_skip(), 
+        `1996` = col_skip(), `1997` = col_skip(), 
+        `1998` = col_skip(), `1999` = col_skip(), 
+        `2000` = col_skip(), `2001` = col_skip(), 
+        `2002` = col_skip(), `2003` = col_skip(), 
+        `2004` = col_skip(), `2005` = col_skip(), 
+        `2006` = col_skip(), `2007` = col_skip(), 
+        `2008` = col_skip(), `2009` = col_skip(), 
+        `2010` = col_skip(), `2011` = col_skip(), 
+        `2012` = col_skip(), `2013` = col_skip(), 
+        `2014` = col_skip(), `2015` = col_skip(), 
+        `2016` = col_skip(), `2017` = col_skip(), 
+        `2018` = col_skip(), `2019` = col_skip()))
+View(pop)
+
+#projected percent increase in climate-change induced deaths
+projecteddeath_perc <- read_csv("~/GitHub/DS_112_Project/resources/indicators/id_heal_01/input.csv",
+    col_types = cols(`1995` = col_skip(), 
+        `1996` = col_skip(), `1997` = col_skip(), 
+        `1998` = col_skip(), `1999` = col_skip(), 
+        `2000` = col_skip(), `2001` = col_skip(), 
+        `2002` = col_skip(), `2003` = col_skip(), 
+        `2004` = col_skip(), `2005` = col_skip(), 
+        `2006` = col_skip(), `2007` = col_skip(), 
+        `2008` = col_skip(), `2009` = col_skip(), 
+        `2010` = col_skip(), `2011` = col_skip(), 
+        `2012` = col_skip(), `2013` = col_skip(), 
+        `2014` = col_skip(), `2015` = col_skip(), 
+        `2016` = col_skip(), `2017` = col_skip(), 
+        `2018` = col_skip(), `2019` = col_skip()))
+
+```
+
+```{r}
+
+id_health_medstaff <- id_health_medstaff %>% 
+  group_by(Name) %>% 
+  mutate(percchange = .data[["2020"]] - .data[["1995"]]) %>% 
+  arrange(desc(percchange))
+
+mean(id_health_medstaff$percchange,na.rm=T)
+  
+
+```
+
+
+```{r}
+pop2020 <- pop %>% 
+   rename("pop2020" = "2020")
+
+gdp2020 <- gdp %>% 
+   rename("gdp2020" = "2020")
+
+medstaff2020 <- id_health_medstaff %>% 
+  rename("medstaff2020" = "2020") %>% 
+  select(ISO3,Name,medstaff2020)
+
+projecteddeathperc2020 <- projecteddeath_perc %>% 
+  rename("projecteddeathperc2020" = "2020")
+
+data2020 <- pop2020 %>% 
+  left_join(gdp2020) %>% 
+  left_join(medstaff2020) %>% 
+  left_join(projecteddeathperc2020)
+
+
+```
+
+```{r}
+(
+  
+  hipopdata2020 <- data2020 %>% 
+  arrange(desc(pop2020)) %>% 
+  filter(pop2020 > 100000000)
+  
+ 
+)
+```
+```{r}
+
+ggplot(data = hipopdata2020, aes(x = gdp2020)) +
+  #geom_point(aes(y = pop2020, color = projecteddeathperc2020)) +
+  geom_text(aes(x = gdp2020, y = pop2020, label = Name, color = projecteddeathperc2020), size=2.6) +
+  labs(title = "population correlated with projected percent increase in climate-change induced deaths", x = "GDP 2020", y = "Population 2020", color = "projected CC death percent increase") + scale_colour_gradient(low = 'blue', high = 'red')
+```
+
+
+#attempting to map using rworldmap package (i think shiny is better actually)
+```{r}
+
+mapdata2020 <- joinCountryData2Map(data2020, joinCode = "ISO3", nameJoinColumn = "ISO3")
+
+```
+```{r}
+
+ mapParams <- mapCountryData(mapdata2020, nameColumnToPlot="projecteddeathperc2020", addLegend=TRUE )
+
+ par(mai=c(0,0,0.2,0),xaxs="i",yaxs="i")
+mapBubbles(dF=mapParams(), 
+            nameZSize="gdp2020",
+            nameZColour="pop2020",
+            colourPalette='rainbow',
+            oceanCol='lightblue', 
+            landCol='wheat'
+            )
+
+```
+
+
+```{r}
+
+
+
+```
+
