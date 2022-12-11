@@ -281,7 +281,7 @@ Continent2.0 <- health_vul %>%
   mutate(Name = if_else(Name == "United Kingdom", "U.K", Name)) %>%
   mutate(Name = if_else(Name == "Papua New Guinea", "P.N.G", Name)) %>%
   mutate(Name = if_else(Name == "Venezuela, Bolivarian Republic o", "Venezuela", Name)) %>%
-  filter(Name%in%c("China","India", "Indonesia", "Pakistan", "Bangladesh","Russia","Germany", "U.K", "France", "Italy","Nigeria","Ethiopia", "Egypt", "DR Congo", "South Africa","United States","Mexico", "Canada", "Guatemala", "Cuba","Australia","P.N.G", "New Zealand", "Fiji", "Solomon Islands")) %>%
+  filter(Name%in%c("China","India", "Indonesia", "Pakistan", "Bangladesh","Russia","Germany", "U.K", "France", "Italy","Nigeria","Ethiopia", "Egypt", "DR Congo", "South Africa","United States","Mexico", "Canada", "Guatemala", "Cuba","Australia","P.N.G", "New Zealand", "Fiji", "Solomon Islands","Brazil","Colombia", "Argentina", "Peru", "Venezuela")) %>%
   mutate(Continent =
             case_when(
             Name%in%c("Brazil","Colombia", "Argentina", "Peru", "Venezuela") ~
@@ -297,17 +297,17 @@ Continent2.0 <- health_vul %>%
 p <- (Continent2.0 %>%
   ggplot(aes(x = year, y = vun, color = Continent, group = Name,text = paste0('Name: ',Name,'\n','Year: ',year,'\nVulnerability: ',round(vun,2))))+
   geom_line()+
-    scale_color_viridis_d(option='cividis') +
+    scale_color_viridis_d(option='turbo') +
     #scale_color_manual(values = cbp1)+
     theme_classic()+
   theme(axis.text.x = element_text(angle = 45, hjust=1))+
-labs( y = "vulnerability",color = 'Countries') +
-  theme(panel.background = element_rect(fill = "white", color = "white"), legend.background = element_rect(fill = "palegreen")) +
-  theme(plot.background = element_rect(fill = "palegreen", color = "palegreen"), plot.margin = margin(15, 2, 2, 2, "pt"),)+
+labs( y = "vulnerability",color = 'Continents') +
+  theme(panel.background = element_rect(fill = "light grey", color = "light grey"), legend.background = element_rect(fill = "lightgrey")) +
+  theme(plot.background = element_rect(fill = "light grey", color = "light grey"), plot.margin = margin(15, 2, 2, 2, "pt"),)+
   theme(plot.title = element_text(face = "bold")))
 
 p %>%
   ggplotly(tooltip = c('text')) %>%
-layout(title = list(text = paste0("Vulnerability to Disease: The Continent of S.A ","<br><sup>","Showing the Effects of Disease on the Continent of S.A Over the Years","</sup>")))
+layout(title = list(text = paste0("Global Vulnerability to Disease ","<br><sup>","Showing the change over time in different countires","</sup>")))
 ```
 
