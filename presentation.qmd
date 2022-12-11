@@ -1,5 +1,5 @@
 ---
-title: "Untitled"
+title: "Shelly and Yair"
 format: revealjs
 editor: visual
 ---
@@ -186,6 +186,10 @@ ggplotly(allpdp)
 ```
 
 ```{r}
+health_vul <- read_csv("./resources/vulnerability/health.csv")
+health_vul <- health_vul %>% 
+  pivot_longer(3:28, names_to="year", values_to="vun") 
+
 Continent2.0 <- health_vul %>%
  mutate(Name = if_else(Name == "Congo, the Democratic Republic o", "DR Congo", Name)) %>%
   mutate(Name = if_else(Name == "Russian Federation", "Russia", Name)) %>%
