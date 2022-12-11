@@ -1,0 +1,313 @@
+---
+title: "finalproj data joining"
+author: "Shelly Bai"
+date: "2022-11-09"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(ggplot2)
+library(lubridate)
+library(dplyr)
+library(rvest)
+library(magrittr)
+library(ggmap)
+library(stringr)
+
+
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+```{r}
+#Importing datasets
+
+library(readr)
+id_health_medstaff <- read_csv("./resources/indicators/id_heal_04/input.csv", 
+    col_types = cols(`1995` = col_double(), 
+        `2015` = col_double()))
+library(readr)
+gdp <- read_csv("./resources/indicators/gdp/score.csv")  %>%
+  pivot_longer(3:28, names_to="year", values_to="gdp") 
+#View(gdp)
+
+pop <- read_csv("./resources/indicators/pop/input.csv", 
+    col_types = cols(`1995` = col_skip(), 
+        `1996` = col_skip(), `1997` = col_skip(), 
+        `1998` = col_skip(), `1999` = col_skip(), 
+        `2000` = col_skip(), `2001` = col_skip(), 
+        `2002` = col_skip(), `2003` = col_skip(), 
+        `2004` = col_skip(), `2005` = col_skip(), 
+        `2006` = col_skip(), `2007` = col_skip(), 
+        `2008` = col_skip(), `2009` = col_skip(), 
+        `2010` = col_skip(), `2011` = col_skip(), 
+        `2012` = col_skip(), `2013` = col_skip(), 
+        `2014` = col_skip(), `2015` = col_skip(), 
+        `2016` = col_skip(), `2017` = col_skip(), 
+        `2018` = col_skip(), `2019` = col_skip()))
+#View(pop)
+
+#projected percent increase in climate-change induced deaths
+projecteddeath_perc <- read_csv("./resources/indicators/id_heal_01/input.csv",
+    col_types = cols(`1995` = col_skip(), 
+        `1996` = col_skip(), `1997` = col_skip(), 
+        `1998` = col_skip(), `1999` = col_skip(), 
+        `2000` = col_skip(), `2001` = col_skip(), 
+        `2002` = col_skip(), `2003` = col_skip(), 
+        `2004` = col_skip(), `2005` = col_skip(), 
+        `2006` = col_skip(), `2007` = col_skip(), 
+        `2008` = col_skip(), `2009` = col_skip(), 
+        `2010` = col_skip(), `2011` = col_skip(), 
+        `2012` = col_skip(), `2013` = col_skip(), 
+        `2014` = col_skip(), `2015` = col_skip(), 
+        `2016` = col_skip(), `2017` = col_skip(), 
+        `2018` = col_skip(), `2019` = col_skip()))
+
+
+#projected percent increase in climate-change induced deaths
+health_vul <- read_csv("./resources/vulnerability/health.csv")
+
+```
+
+```{r}
+health_vul <- health_vul %>% 
+  pivot_longer(3:28, names_to="year", values_to="vun") 
+```
+
+```{r}
+cbp1 <- c("#999999", "#E69F00", "#56B4E9", "#009E73",
+          "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+library(plotly)
+#(health_vul %>%
+```
+
+
+```{r}
+library(plotly)
+(health_vul %>%
+filter(Name%in%c("Mexico","Ecuador", "Venezuela", "Argentina", "Chile","Brazil", "Colombia"))  %>%
+  ggplot(aes(x = year, y = vun, color = Name, group = Name,text = paste0('Name: ',Name,'\n','Year: ',year,'\nVulnerability: ',round(vun,2))))+
+  geom_line()+ 
+    scale_color_viridis_d(option='dark') + 
+    scale_color_manual(values = cbp1)+
+    theme_classic()+
+  theme(axis.text.x = element_text(angle = 45, hjust=1))+
+labs( y = "vulnerability",color = 'Countries') + 
+  theme(panel.background = element_rect(fill = "white", color = "white"), legend.background = element_rect(fill = "light grey")) +
+  theme(plot.background = element_rect(fill = "light grey", color = "light grey"), plot.margin = margin(15, 2, 2, 2, "pt"),)+
+  theme(plot.title = element_text(face = "bold"))) %>% 
+  ggplotly(tooltip = c('text')) %>%
+  layout(title = list(text = paste0("Latin Countires and Their Vulnerability to Disease ","<br><sup>","Showing the Efects of Disease on Latin Countires Over the Years","</sup>"))) 
+  
+  
+
+  
+
+```
+
+```{r}
+left_join(health_vul,gdp) %>% 
+  filter(Name%in%c("United States","Mexico","Argentina", "Australia", "Spain", "Chile"))  %>%
+  ggplot(aes(x = gdp, y= vun,color = Name)) + geom_point() + theme_classic() + geom_smooth()+
+labs(y ="vunrability", x = "Gross Domestic Product")
+```
+
+```{r}
+```
+
+
+```{r}
+library(plotly)
+(health_vul %>%
+filter(Name%in%c("China","India", "Indonesia", "Pakistan", "Bangladesh"))  %>%
+  ggplot(aes(x = year, y = vun, color = Name, group = Name,text = paste0('Name: ',Name,'\n','Year: ',year,'\nVulnerability: ',round(vun,2))))+
+  geom_line()+ 
+    scale_color_viridis_d(option='dark') + 
+    scale_color_manual(values = cbp1)+
+    theme_classic()+
+  theme(axis.text.x = element_text(angle = 45, hjust=1))+
+labs( y = "vulnerability",color = 'Countries') + 
+  theme(panel.background = element_rect(fill = "white", color = "white"), legend.background = element_rect(fill = "pink")) +
+  theme(plot.background = element_rect(fill = "pink", color = "pink"), plot.margin = margin(15, 2, 2, 2, "pt"),)+
+  theme(plot.title = element_text(face = "bold"))) %>% 
+  ggplotly(tooltip = c('text')) %>%
+layout(title = list(text = paste0("Vulnerability to Disease: The Continent of Asia ","<br><sup>","Showing the Efects of Disease on the Continent of Asia Over the Years","</sup>")))
+```
+
+
+```{r}
+library(plotly)
+(health_vul %>%
+    mutate(Name = if_else(Name == "Congo, the Democratic Republic o", "DR Congo", Name)) %>% 
+filter(Name%in%c("Nigeria","Ethiopia", "Egypt", "DR Congo", "South Africa"))  %>%
+  ggplot(aes(x = year, y = vun, color = Name, group = Name,text = paste0('Name: ',Name,'\n','Year: ',year,'\nVulnerability: ',round(vun,2))))+
+  geom_line()+ 
+    scale_color_viridis_d(option='dark') + 
+    scale_color_manual(values = cbp1)+
+    theme_classic()+
+  theme(axis.text.x = element_text(angle = 45, hjust=1))+
+labs( y = "vulnerability",color = 'Countries') + 
+  theme(panel.background = element_rect(fill = "white", color = "white"), legend.background = element_rect(fill = "lavender")) +
+  theme(plot.background = element_rect(fill = "lavender", color = "lavender"), plot.margin = margin(15, 2, 2, 2, "pt"),)+
+  theme(plot.title = element_text(face = "bold"))) %>% 
+  ggplotly(tooltip = c('text')) %>%
+  layout(title = list(text = paste0("Vulnerability to Disease: The Continent of Africa ","<br><sup>","Showing the Efects of Disease on the Continent of Africa Over the Years","</sup>"))) 
+```
+
+```{r}
+library(plotly)
+(health_vul %>%
+   mutate(Name = if_else(Name == "Russian Federation", "Russia", Name)) %>%
+    mutate(Name = if_else(Name == "United Kingdom", "U.K", Name)) %>%
+filter(Name%in%c("Russia","Germany", "U.K", "France", "Italy"))  %>%
+  ggplot(aes(x = year, y = vun, color = Name, group = Name,text = paste0('Name: ',Name,'\n','Year: ',year,'\nVulnerability: ',round(vun,2))))+
+  geom_line()+ 
+    scale_color_viridis_d(option='dark') + 
+    scale_color_manual(values = cbp1)+
+    theme_classic()+
+  theme(axis.text.x = element_text(angle = 45, hjust=1))+
+labs( y = "vulnerability",color = 'Countries') + 
+  theme(panel.background = element_rect(fill = "white", color = "white"), legend.background = element_rect(fill = "burlywood")) +
+  theme(plot.background = element_rect(fill = "burlywood", color = "burlywood"), plot.margin = margin(15, 2, 2, 2, "pt"),)+
+  theme(plot.title = element_text(face = "bold"))) %>% 
+  ggplotly(tooltip = c('text')) %>%
+layout(title = list(text = paste0("Vulnerability to Disease: The Continent of Europe ","<br><sup>","Showing the Efects of Disease on the Continent of Europe Over the Years","</sup>")))
+```
+
+```{r}
+library(plotly)
+(health_vul %>%
+filter(Name%in%c("United States","Mexico", "Canada", "Guatemala", "Cuba"))  %>%
+  ggplot(aes(x = year, y = vun, color = Name, group = Name,text = paste0('Name: ',Name,'\n','Year: ',year,'\nVulnerability: ',round(vun,2))))+
+  geom_line()+ 
+    scale_color_viridis_d(option='dark') + 
+    scale_color_manual(values = cbp1)+
+    theme_classic()+
+  theme(axis.text.x = element_text(angle = 45, hjust=1))+
+labs( y = "vulnerability",color = 'Countries') + 
+  theme(panel.background = element_rect(fill = "white", color = "white"), legend.background = element_rect(fill = "blanchedalmond")) +
+  theme(plot.background = element_rect(fill = "blanchedalmond", color = "blanchedalmond"), plot.margin = margin(15, 2, 2, 2, "pt"),)+
+  theme(plot.title = element_text(face = "bold"))) %>% 
+  ggplotly(tooltip = c('text')) %>%
+layout(title = list(text = paste0("Vulnerability to Disease: The Continent of N.A ","<br><sup>","Showing the Efects of Disease on the Continent of N.A Over the Years","</sup>")))
+```
+
+```{r}
+library(plotly)
+(health_vul %>%
+    mutate(Name = if_else(Name == "Papua New Guinea", "P.N.G", Name)) %>% 
+filter(Name%in%c("Australia","P.N.G", "New Zealand", "Fiji", "Solomon Islands"))  %>%
+  ggplot(aes(x = year, y = vun, color = Name, group = Name,text = paste0('Name: ',Name,'\n','Year: ',year,'\nVulnerability: ',round(vun,2))))+
+  geom_line()+ 
+    scale_color_viridis_d(option='dark') + 
+    scale_color_manual(values = cbp1)+
+    theme_classic()+
+  theme(axis.text.x = element_text(angle = 45, hjust=1))+
+labs( y = "vulnerability",color = 'Countries') + 
+  theme(panel.background = element_rect(fill = "white", color = "white"), legend.background = element_rect(fill = "#CCFFFF")) +
+  theme(plot.background = element_rect(fill = "#CCFFFF", color = "#CCFFFF"), plot.margin = margin(15, 2, 2, 2, "pt"),)+
+  theme(plot.title = element_text(face = "bold"))) %>% 
+  ggplotly(tooltip = c('text')) %>%
+  layout(title = list(text = paste0("Vulnerability to Disease: The Oceania Continent ","<br><sup>","Showing the Efects of Disease on the Continent of Oceania Over the Years","</sup>"))) 
+```
+
+```{r}
+library(plotly)
+(health_vul %>%
+   mutate(Name = if_else(Name == "Venezuela, Bolivarian Republic o", "Venezuela", Name)) %>% 
+filter(Name%in%c("Brazil","Colombia", "Argentina", "Peru", "Venezuela")) %>%
+  ggplot(aes(x = year, y = vun, color = Name, group = Name,text = paste0('Name: ',Name,'\n','Year: ',year,'\nVulnerability: ',round(vun,2))))+
+  geom_line()+ 
+    scale_color_viridis_d(option='dark') + 
+    scale_color_manual(values = cbp1)+
+    theme_classic()+
+  theme(axis.text.x = element_text(angle = 45, hjust=1))+
+labs( y = "vulnerability",color = 'Countries') + 
+  theme(panel.background = element_rect(fill = "white", color = "white"), legend.background = element_rect(fill = "palegreen")) +
+  theme(plot.background = element_rect(fill = "palegreen", color = "palegreen"), plot.margin = margin(15, 2, 2, 2, "pt"),)+
+  theme(plot.title = element_text(face = "bold"))) %>% 
+  ggplotly(tooltip = c('text')) %>%
+layout(title = list(text = paste0("Vulnerability to Disease: The Continent of S.A ","<br><sup>","Showing the Efects of Disease on the Continent of S.A Over the Years","</sup>")))
+```
+
+```{r warning=FALSE}
+
+
+Continent2.0 <- 
+  health_vul %>% 
+  mutate(Continent =
+            case_when(
+            Name%in%c("Brazil","Colombia", "Argentina", "Peru", "Venezuela") ~
+              "South America",
+            Name%in%c("Australia","P.N.G", "New Zealand", "Fiji", "Solomon Islands") ~ "Oceania",
+            Name%in%c("United States","Mexico", "Canada", "Guatemala", "Cuba") ~ "North America",
+            Name%in%c("Russia","Germany", "U.K", "France", "Italy") ~ "Europe",
+            Name%in%c("Nigeria","Ethiopia", "Egypt", "DR Congo", "South Africa") ~ "Africa",
+          Name%in%c("China","India", "Indonesia", "Pakistan", "Bangladesh") ~ "Asia"))
+            
+
+#Continent2.0 %>% 
+   # mutate(Name = if_else(Name == "Congo, the Democratic Republic o", "DR Congo", Name)) %>% 
+  #mutate(Name = if_else(Name == "Russian Federation", "Russia", Name)) %>%
+  #mutate(Name = if_else(Name == "United Kingdom", "U.K", Name)) %>%
+  #mutate(Name = if_else(Name == "Papua New Guinea", "P.N.G", Name)) %>%
+  #mutate(Name = if_else(Name == "Venezuela, Bolivarian Republic o", "Venezuela", Name)) %>% 
+  #filter(Name%in%c("China","India", "Indonesia", "Pakistan", "Bangladesh","Russia","Germany", "U.K", "France", "Italy","Nigeria","Ethiopia", "Egypt", "DR Congo", "South Africa","United States","Mexico", "Canada", "Guatemala", "Cuba","Australia","P.N.G", "New Zealand", "Fiji", "Solomon Islands","Australia","P.N.G", "New Zealand", "Fiji", "Solomon Islands"))
+  #ggplot(aes(x = year, y = vun, color = Name, group = Name,text = paste0('Name: ',Name,'\n','Year: ',year,'\nVulnerability: ',round(vun,2))))+
+  #geom_line()+ 
+    #scale_color_viridis_d(option='dark') + 
+   # scale_color_manual(values = cbp1)+
+    #theme_classic()+
+  #theme(axis.text.x = element_text(angle = 45, hjust=1))+
+#labs( y = "vulnerability",color = 'Countries') + 
+  #theme(panel.background = element_rect(fill = "white", color = "white"), legend.background = element_rect(fill = "palegreen")) +
+  #theme(plot.background = element_rect(fill = "palegreen", color = "palegreen"), plot.margin = margin(15, 2, 2, 2, "pt"),)+
+  #theme(plot.title = element_text(face = "bold")) %>% 
+  #ggplotly(tooltip = c('text')) %>%
+#layout(title = list(text = paste0("Vulnerability to Disease: The Continent of S.A ","<br><sup>","Showing the Effects of Disease on the Continent of S.A Over the Years","</sup>")))
+
+
+
+
+```
+
+
+```{r}
+Continent2.0 <- health_vul %>%
+ mutate(Name = if_else(Name == "Congo, the Democratic Republic o", "DR Congo", Name)) %>%
+  mutate(Name = if_else(Name == "Russian Federation", "Russia", Name)) %>%
+  mutate(Name = if_else(Name == "United Kingdom", "U.K", Name)) %>%
+  mutate(Name = if_else(Name == "Papua New Guinea", "P.N.G", Name)) %>%
+  mutate(Name = if_else(Name == "Venezuela, Bolivarian Republic o", "Venezuela", Name)) %>%
+  filter(Name%in%c("China","India", "Indonesia", "Pakistan", "Bangladesh","Russia","Germany", "U.K", "France", "Italy","Nigeria","Ethiopia", "Egypt", "DR Congo", "South Africa","United States","Mexico", "Canada", "Guatemala", "Cuba","Australia","P.N.G", "New Zealand", "Fiji", "Solomon Islands")) %>%
+  mutate(Continent =
+            case_when(
+            Name%in%c("Brazil","Colombia", "Argentina", "Peru", "Venezuela") ~
+              "South America",
+            Name%in%c("Australia","P.N.G", "New Zealand", "Fiji", "Solomon Islands") ~ "Oceania",
+            Name%in%c("United States","Mexico", "Canada", "Guatemala", "Cuba") ~ "North America",
+            Name%in%c("Russia","Germany", "U.K", "France", "Italy") ~ "Europe",
+            Name%in%c("Nigeria","Ethiopia", "Egypt", "DR Congo", "South Africa") ~ "Africa",
+          Name%in%c("China","India", "Indonesia", "Pakistan", "Bangladesh") ~ "Asia"))
+
+
+
+p <- (Continent2.0 %>%
+  ggplot(aes(x = year, y = vun, color = Continent, group = Name,text = paste0('Name: ',Name,'\n','Year: ',year,'\nVulnerability: ',round(vun,2))))+
+  geom_line()+
+    scale_color_viridis_d(option='cividis') +
+    #scale_color_manual(values = cbp1)+
+    theme_classic()+
+  theme(axis.text.x = element_text(angle = 45, hjust=1))+
+labs( y = "vulnerability",color = 'Countries') +
+  theme(panel.background = element_rect(fill = "white", color = "white"), legend.background = element_rect(fill = "palegreen")) +
+  theme(plot.background = element_rect(fill = "palegreen", color = "palegreen"), plot.margin = margin(15, 2, 2, 2, "pt"),)+
+  theme(plot.title = element_text(face = "bold")))
+
+p %>%
+  ggplotly(tooltip = c('text')) %>%
+layout(title = list(text = paste0("Vulnerability to Disease: The Continent of S.A ","<br><sup>","Showing the Effects of Disease on the Continent of S.A Over the Years","</sup>")))
+```
+
