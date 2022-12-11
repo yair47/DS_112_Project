@@ -1,11 +1,30 @@
 ---
-title: "finalproj data joining"
-author: "Shelly Bai"
-date: "2022-11-09"
-output: html_document
+title: "Untitled"
+format: revealjs
+editor: visual
 ---
 
-```{r setup, include=FALSE}
+## Quarto
+
+Quarto enables you to weave together content and executable code into a finished presentation. To learn more about Quarto presentations see <https://quarto.org/docs/presentations/>.
+
+## Bullets
+
+When you click the **Render** button a document will be generated that includes:
+
+-   Content authored with markdown
+-   Output from executable code
+
+## Code
+
+When you click the **Render** button a presentation will be generated that includes both content and the output of embedded code. You can embed code like this:
+
+```{r }
+
+
+```
+
+```{r setup, include=FALSE, echo=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(ggplot2)
@@ -25,7 +44,7 @@ library(gganimate)
 
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
 
-```{r}
+```{r, echo=FALSE}
 #Importing datasets
 
 library(readr)
@@ -47,7 +66,7 @@ gdp <- read_csv("~/GitHub/DS_112_Project/resources/indicators/gdp/score.csv",
         `2014` = col_skip(), `2015` = col_skip(), 
         `2016` = col_skip(), `2017` = col_skip(), 
         `2018` = col_skip(), `2019` = col_skip()))
-View(gdp)
+
 
 pop <- read_csv("~/GitHub/DS_112_Project/resources/indicators/pop/input.csv", 
     col_types = cols(`1995` = col_skip(), 
@@ -63,7 +82,7 @@ pop <- read_csv("~/GitHub/DS_112_Project/resources/indicators/pop/input.csv",
         `2014` = col_skip(), `2015` = col_skip(), 
         `2016` = col_skip(), `2017` = col_skip(), 
         `2018` = col_skip(), `2019` = col_skip()))
-View(pop)
+
 
 #projected percent increase in climate-change induced deaths
 projecteddeath_perc <- read_csv("~/GitHub/DS_112_Project/resources/indicators/id_heal_01/input.csv",
@@ -84,11 +103,11 @@ projecteddeath_perc <- read_csv("~/GitHub/DS_112_Project/resources/indicators/id
 projecteddeath_perc_all <- read_csv("~/GitHub/DS_112_Project/resources/indicators/id_heal_01/input.csv")
 
 vulhealth <- read_csv("resources/vulnerability/health.csv")
-View(vulhealth)
+
 
 ```
 
-```{r}
+```{r, echo=FALSE}
 
 id_health_medstaff <- id_health_medstaff %>% 
   group_by(Name) %>% 
@@ -100,8 +119,7 @@ mean(id_health_medstaff$percchange,na.rm=T)
 
 ```
 
-
-```{r}
+```{r, echo=FALSE}
 pop2020 <- pop %>% 
    rename("pop2020" = "2020")
 
@@ -123,7 +141,7 @@ data2020 <- pop2020 %>%
 
 ```
 
-```{r}
+```{r, echo=FALSE}
 (
   
   hipopdata2020 <- data2020 %>% 
@@ -136,6 +154,7 @@ data2020 <- pop2020 %>%
   arrange(desc(pop2020)) %>% 
   filter(pop2020 > 1000000)
 ```
+
 ```{r}
 
 pdp <- ggplot(data = hipopdata2020, aes(x = gdp2020)) +
@@ -154,6 +173,9 @@ allpdp <- ggplot(data = data2020, aes(x = gdp2020)) +
 ggplotly(allpdp)
 
 ```
+
+## 
+
 ```{r}
 
 allpdp <- ggplot(data = data2020, aes(x = gdp2020)) +
@@ -163,220 +185,4 @@ allpdp <- ggplot(data = data2020, aes(x = gdp2020)) +
 
 ggplotly(allpdp)
 
-
 ```
-```{r}
-
-library(rnaturalearth)
-map <- ne_countries()
-names(map)[names(map) == "iso_a3"] <- "ISO3"
-names(map)[names(map) == "name"] <- "NAME"
-
-plot(map)
-
-map$projecteddeathperc2020 <- data2020$projecteddeathperc2020[match(map$ISO3,data2020$ISO3)]
-
-
-head(map)
-
-```
-
-```{r}
-library(DT)
-DT::datatable(map@data[, c("ISO3", "NAME", "projecteddeathperc2020")],
-  rownames = FALSE, options = list(pageLength = 10)
-)
-
-```
-```{r}
-
-library(leaflet)
-
-pal <- colorBin(
-  palette = "magma", domain = map$projecteddeathperc2020,
-  bins = seq(1, max(map$projecteddeathperc2020, na.rm = TRUE) + 0, by = .01)
-)
-
-
-map$labels <- paste0(
-  "<strong> Country: </strong> ",
-  map$NAME, "<br/> ",
-  "<strong> projecteddeathperc2020: </strong> ",
-  map$projecteddeathperc2020, "<br/> "
-) %>%
-  lapply(htmltools::HTML)
-
-leafletdata2020 <- leaflet(map) %>%
-  addTiles() %>%
-  setView(lng = 0, lat = 30, zoom = 2) %>%
-  addPolygons(
-    fillColor = ~ pal(projecteddeathperc2020),
-    color = "white",
-    weight = 2,
-    fillOpacity = 1,
-    label = ~labels,
-    highlight = highlightOptions(
-      color = "black",
-      bringToFront = TRUE
-    )
-  ) %>%
-  leaflet::addLegend(
-    pal = pal, values = ~projecteddeathperc2020,
-    opacity = 0.7, title = "projecteddeathperc2020"
-  )
-
-leafletdata2020
-
-```
-
-
-#attempting to map using rworldmap package (i think shiny is better actually)
-```{r}
-
-mapdata2020 <- joinCountryData2Map(data2020, joinCode = "ISO3", nameJoinColumn = "ISO3")
-
-```
-```{r}
-# spdf is a sp::SpatialPolygonsDataFrame
-l <- leaflet() %>%
-  setView(lat = 50.85045, lng = 4.34878, zoom=13) %>%
-  addTiles(group="OSM") %>%
-  addProviderTiles(providers$CartoDB.DarkMatter, group="Dark") %>%
-  addProviderTiles(providers$CartoDB.Positron, group="Light") %>%
-  addLayersControl(baseGroups=c('OSM','Dark','Light'))
-  
-
-
-qpal <- colorQuantile(rev(viridis::viridis(5)),
-                      spdf$POPDENSITY, n=5)
-
-l <- leaflet(spdf, options =
-               leafletOptions(attributionControl = FALSE, minzoom=1.5)) %>%
-  addPolygons(
-    label=~stringr::str_c(
-      NAME, ' ',
-      formatC(POPDENSITY, big.mark = ',', format='d')),
-    labelOptions= labelOptions(direction = 'auto'),
-    weight=1,color='#333333', opacity=1,
-    fillColor = ~qpal(POPDENSITY), fillOpacity = 1,
-    highlightOptions = highlightOptions(
-      color='#000000', weight = 2,
-      bringToFront = TRUE, sendToBack = TRUE)
-    ) %>%
-  addLegend(
-    "topright", pal = qpal, values = ~POPDENSITY,
-    title = htmltools::HTML("Population Density<br/>(2005)"),
-    opacity = 1 )
-
-```
-```{r}
-
-
-
-```
-
-
-```{r}
-library(gapminder)
-ggplot(projecteddeath_perc_all, aes(projecteddeath_perc_all, projecteddeathperc2020, size = pop2020, colour = gdp2020)) +
-  geom_point(alpha = 0.7, show.legend = FALSE) +
-  scale_colour_manual(values = country_colors) +
-  scale_size(range = c(2, 12)) +
-  scale_x_log10() +
-  facet_wrap(~continent) +
-  # Here comes the gganimate specific bits
-  labs(title = 'Year: {frame_time}', x = 'GDP per capita', y = 'life expectancy') +
-  transition_time(year) +
-  ease_aes('linear')
-
-```
-
-```{r}
-
-write.csv(data2020,"C:\\Users\\seash\\Documents\\GitHub\\DS_112_Project\\data2020.csv", row.names = FALSE)
-
-```
-
-```{r}
-# spdf is a sp::SpatialPolygonsDataFrame
-qpal <- colorQuantile(rev(viridis::viridis(5)),
-                      spdf$POPDENSITY, n=5)
-
-l <- leaflet(spdf, options =
-               leafletOptions(attributionControl = FALSE, minzoom=1.5)) %>%
-  addPolygons(
-    label=~stringr::str_c(
-      NAME, ' ',
-      formatC(POPDENSITY, big.mark = ',', format='d')),
-    labelOptions= labelOptions(direction = 'auto'),
-    weight=1,color='#333333', opacity=1,
-    fillColor = ~qpal(ggperc), fillOpacity = 1,
-    highlightOptions = highlightOptions(
-      color='#000000', weight = 2,
-      bringToFront = TRUE, sendToBack = TRUE)
-    ) %>%
-  addLegend(
-    "topright", pal = qpal, values = ~POPDENSITY,
-    title = htmltools::HTML("Population Density<br/>(2005)"),
-    opacity = 1 )
-
-```
-
-
-```{r}
-
-library(maptools)
-library(mapproj)
-library(rgeos)
-library(rgdal)
-library(ggplot2)
-library(jsonlite)
-library(RCurl)
-
-# naturalearth world map geojson
-URL <- "https://github.com/nvkelso/natural-earth-vector/raw/master/geojson/ne_50m_admin_0_countries.geojson.gz"
-fil <- basename(URL)
-
-if (!file.exists(fil)) download.file(URL, fil)
-R.utils::gunzip(fil)
-world <- readOGR(dsn="ne_50m_admin_0_countries.geojson", layer="OGRGeoJSON")
-
-# remove antarctica
-world <- world[!world$iso_a3 %in% c("ATA"),]
-
-world <- spTransform(world, CRS("+proj=wintri"))
-
-dat_url <- getURL("https://gist.githubusercontent.com/hrbrmstr/7a0ddc5c0bb986314af3/raw/6a07913aded24c611a468d951af3ab3488c5b702/pop.csv")
-pop <- read.csv(text=dat_url, stringsAsFactors=FALSE, header=TRUE)
-
-map <- fortify(world, region="iso_a3")
-
-# data frame of markers 
-labs <- data.frame(lat=c(39.5, 35.50), 
-                   lon=c(-98.35, 103.27), 
-                   title=c("US", "China"))
-
-# pre-project them to winkel-tripel
-coordinates(labs) <-  ~lon+lat
-c_labs <- as.data.frame(SpatialPointsDataFrame(spTransform(
-  SpatialPoints(labs, CRS("+proj=longlat")), CRS("+proj=wintri")),
-  labs@data))
-
-gg <- ggplot()
-gg <- gg + geom_map(data=map, map=map,
-                    aes(x=long, y=lat, map_id=id, group=group),
-                    fill="#ffffff", color=NA)
-gg <- gg + geom_map(data=pop, map=map, color="white", size=0.15,
-                    aes(fill=log(X2013), group=Country.Code, map_id=Country.Code))
-gg <- gg + geom_point(data=c_labs, aes(x=lon, y=lat), size=4)
-gg <- gg + scale_fill_gradient(low="#f7fcb9", high="#31a354", name="Population by Country\n(2013, log scale)")
-gg <- gg + labs(title="2013 Population")
-gg <- gg + coord_equal(ratio=1)
-gg <- gg + ggthemes::theme_map()
-gg <- gg + theme(legend.position="bottom")
-gg <- gg + theme(legend.key = element_blank())
-gg <- gg + theme(plot.title=element_text(size=16))
-gg
-
-```
-
