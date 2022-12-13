@@ -1,6 +1,8 @@
 ---
 title: "Shelly and Yair"
-format: revealjs
+format:
+  revealjs:
+    embed-resources: true
 editor: visual
 ---
 
