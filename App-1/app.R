@@ -1,3 +1,8 @@
+---
+  title: "Vulnerability Indicators World Bank https://data.worldbank.org"
+output: flexdashboard::flex_dashboard
+---
+
 library(shiny)
 library(leaflet)
 library(dplyr)
@@ -7,10 +12,11 @@ library(plotly)
 library(htmltools)
 library(DT)
 library(shinyjs)
+library(flex_dashboard)
+
 
 r_colors <- rgb(t(col2rgb(colors()) / 255))
 names(r_colors) <- colors()
-
 
 
 ui <- fluidPage(
@@ -30,13 +36,23 @@ ui <- fluidPage(
   print("Hello World!")
 )
 
-
-
 server <- function(input,output, session){
   
   library(readr)
-  data2020 <- read_csv("GitHub/DS_112_Project/data2020.csv")
-view(data2020)
+  data2020 <- read_csv("~/GitHub/DS_112_Project/data2020.csv")
+  
+  library(rnaturalearth)
+  map <- ne_countries()
+  names(map)[names(map) == "iso_a3"] <- "ISO3"
+  names(map)[names(map) == "name"] <- "NAME"
+  plot(map)
+  map$projecteddeathperc2020 <- data2020$projecteddeathperc2020[match(map$ISO3,data2020$ISO3)]
+  library(DT)
+  DT::datatable(map@data[, c("ISO3", "NAME", "projecteddeathperc2020")],
+                rownames = FALSE, options = list(pageLength = 10)
+  )
+  
+ 
   
   #renders the leaflet
   output$mymap <- renderLeaflet({
@@ -106,10 +122,8 @@ view(data2020)
     
     leafletdata2020
   })
-  
-  
 }
-  
+
 
 
 shinyApp(ui = ui, server = server)

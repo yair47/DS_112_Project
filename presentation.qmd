@@ -4,25 +4,7 @@ format: revealjs
 editor: visual
 ---
 
-## Quarto
 
-Quarto enables you to weave together content and executable code into a finished presentation. To learn more about Quarto presentations see <https://quarto.org/docs/presentations/>.
-
-## Bullets
-
-When you click the **Render** button a document will be generated that includes:
-
--   Content authored with markdown
--   Output from executable code
-
-## Code
-
-When you click the **Render** button a presentation will be generated that includes both content and the output of embedded code. You can embed code like this:
-
-```{r }
-
-
-```
 
 ```{r setup, include=FALSE, echo=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -42,17 +24,16 @@ library(gganimate)
 
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
 
 ```{r, echo=FALSE}
 #Importing datasets
 
 library(readr)
-id_health_medstaff <- read_csv("~/GitHub/DS_112_Project/resources/indicators/id_heal_04/input.csv", 
+id_health_medstaff <- read_csv("resources/indicators/id_heal_04/input.csv", 
     col_types = cols(`1995` = col_double(), 
         `2015` = col_double()))
 library(readr)
-gdp <- read_csv("~/GitHub/DS_112_Project/resources/indicators/gdp/score.csv", 
+gdp <- read_csv("resources/indicators/gdp/score.csv", 
     col_types = cols(`1995` = col_skip(), 
         `1996` = col_skip(), `1997` = col_skip(), 
         `1998` = col_skip(), `1999` = col_skip(), 
@@ -68,7 +49,7 @@ gdp <- read_csv("~/GitHub/DS_112_Project/resources/indicators/gdp/score.csv",
         `2018` = col_skip(), `2019` = col_skip()))
 
 
-pop <- read_csv("~/GitHub/DS_112_Project/resources/indicators/pop/input.csv", 
+pop <- read_csv("resources/indicators/pop/input.csv", 
     col_types = cols(`1995` = col_skip(), 
         `1996` = col_skip(), `1997` = col_skip(), 
         `1998` = col_skip(), `1999` = col_skip(), 
@@ -85,7 +66,7 @@ pop <- read_csv("~/GitHub/DS_112_Project/resources/indicators/pop/input.csv",
 
 
 #projected percent increase in climate-change induced deaths
-projecteddeath_perc <- read_csv("~/GitHub/DS_112_Project/resources/indicators/id_heal_01/input.csv",
+projecteddeath_perc <- read_csv("resources/indicators/id_heal_01/input.csv",
     col_types = cols(`1995` = col_skip(), 
         `1996` = col_skip(), `1997` = col_skip(), 
         `1998` = col_skip(), `1999` = col_skip(), 
@@ -100,7 +81,7 @@ projecteddeath_perc <- read_csv("~/GitHub/DS_112_Project/resources/indicators/id
         `2016` = col_skip(), `2017` = col_skip(), 
         `2018` = col_skip(), `2019` = col_skip()))
 
-projecteddeath_perc_all <- read_csv("~/GitHub/DS_112_Project/resources/indicators/id_heal_01/input.csv")
+projecteddeath_perc_all <- read_csv("resources/indicators/id_heal_01/input.csv")
 
 vulhealth <- read_csv("resources/vulnerability/health.csv")
 
@@ -114,7 +95,7 @@ id_health_medstaff <- id_health_medstaff %>%
   mutate(percchange = .data[["2020"]] - .data[["1995"]]) %>% 
   arrange(desc(percchange))
 
-mean(id_health_medstaff$percchange,na.rm=T)
+#mean(id_health_medstaff$percchange,na.rm=T)
   
 
 ```
@@ -142,20 +123,20 @@ data2020 <- pop2020 %>%
 ```
 
 ```{r, echo=FALSE}
-(
+
   
   hipopdata2020 <- data2020 %>% 
   arrange(desc(pop2020)) %>% 
   filter(pop2020 > 126000000)
   
-)
+
 
   mostpopdata2020 <- data2020 %>% 
   arrange(desc(pop2020)) %>% 
   filter(pop2020 > 1000000)
 ```
 
-```{r}
+```{r echo=FALSE}
 
 pdp <- ggplot(data = hipopdata2020, aes(x = gdp2020)) +
   geom_text(aes(x = gdp2020, y = pop2020, label = Name, color = projecteddeathperc2020), size=2.6) +
@@ -170,11 +151,21 @@ allpdp <- ggplot(data = data2020, aes(x = gdp2020)) +
   labs(title = "Projected % Increase in Climate-Change Induced Deaths", x = "GDP 2020 ($)", y = "Population 2020", color = "Projected Climate-change \nInduced Death % Increase") + guides(size="none") + scale_colour_gradient(low = 'blue', high = 'red') + theme_bw() + scale_y_continuous(limits = c(0, 1450000000), breaks=seq(0, 2000000000, by = 100000000), labels = scales::label_number_si()) +
   scale_x_continuous(limits = c(0, 70000), breaks=seq(0, 70000, by = 10000), labels = scales::label_number_si())
 
+
+
+```
+
+## Graph 1
+```{r echo=FALSE}
+ggplotly(pdp)
+```
+
+## Graph 2
+```{r echo=FALSE}
 ggplotly(allpdp)
 
 ```
 
-## 
 
 ```{r}
 allpdp <- ggplot(data = data2020, aes(x = gdp2020)) +
@@ -185,7 +176,9 @@ allpdp <- ggplot(data = data2020, aes(x = gdp2020)) +
 ggplotly(allpdp)
 ```
 
-```{r}
+## Yair's cool viz
+
+```{r,  echo=FALSE}
 health_vul <- read_csv("./resources/vulnerability/health.csv")
 health_vul <- health_vul %>% 
   pivot_longer(3:28, names_to="year", values_to="vun") 
@@ -225,3 +218,5 @@ p %>%
   ggplotly(tooltip = c('text')) %>%
 layout(title = list(text = paste0("Global Vulnerability to Disease ","<br><sup>","Showing the change over time in different countires","</sup>")))
 ```
+
+## Conclusion
