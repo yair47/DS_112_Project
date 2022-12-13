@@ -1,5 +1,5 @@
 ---
-title: "Shelly and Yair"
+title: "The Risk Global Vulnerability and Gobal Health: to Climate Change The Effects of Climate Change on Global Health & Vulnerability"
 format:
   revealjs:
     embed-resources: true
@@ -26,6 +26,76 @@ library(gganimate)
 
 ```
 
+
+
+## Yair's cool viz
+
+```{r,  echo=FALSE}
+health_vul <- read_csv("./resources/vulnerability/health.csv")
+health_vul <- health_vul %>% 
+  pivot_longer(3:28, names_to="year", values_to="vun") 
+
+Continent2.0 <- health_vul %>%
+ mutate(Name = if_else(Name == "Congo, the Democratic Republic o", "DR Congo", Name)) %>%
+  mutate(Name = if_else(Name == "Russian Federation", "Russia", Name)) %>%
+  mutate(Name = if_else(Name == "United Kingdom", "U.K", Name)) %>%
+  mutate(Name = if_else(Name == "Papua New Guinea", "P.N.G", Name)) %>%
+  mutate(Name = if_else(Name == "Venezuela, Bolivarian Republic o", "Venezuela", Name)) %>%
+  filter(Name%in%c("China","India", "Indonesia", "Pakistan", "Bangladesh","Russia","Germany", "U.K", "France", "Italy","Nigeria","Ethiopia", "Egypt", "DR Congo", "South Africa","United States","Mexico", "Canada", "Guatemala", "Cuba","Australia","P.N.G", "New Zealand", "Fiji", "Solomon Islands","Brazil","Colombia", "Argentina", "Peru", "Venezuela")) %>%
+  mutate(Continent =
+            case_when(
+            Name%in%c("Brazil","Colombia", "Argentina", "Peru", "Venezuela") ~
+              "South America",
+            Name%in%c("Australia","P.N.G", "New Zealand", "Fiji", "Solomon Islands") ~ "Oceania",
+            Name%in%c("United States","Mexico", "Canada", "Guatemala", "Cuba") ~ "North America",
+            Name%in%c("Russia","Germany", "U.K", "France", "Italy") ~ "Europe",
+            Name%in%c("Nigeria","Ethiopia", "Egypt", "DR Congo", "South Africa") ~ "Africa",
+          Name%in%c("China","India", "Indonesia", "Pakistan", "Bangladesh") ~ "Asia"))
+
+
+
+p <- (Continent2.0 %>%
+  ggplot(aes(x = year, y = vun, color = Continent, group = Name,text = paste0('Name: ',Name,'\n','Year: ',year,'\nVulnerability: ',round(vun,2))))+
+  geom_line()+
+    scale_color_viridis_d(option='turbo') +
+    #scale_color_manual(values = cbp1)+
+    theme_classic()+
+  theme(axis.text.x = element_text(angle = 45, hjust=1))+
+labs( y = "vulnerability",color = 'Continents') +
+  theme(panel.background = element_rect(fill = "white", color = "white"), legend.background = element_rect(fill = "white")) +
+  theme(plot.background = element_rect(fill = "white", color = "light grey"), plot.margin = margin(15, 2, 2, 2, "pt"),)+
+  theme(plot.title = element_text(face = "bold")))
+
+p %>%
+  ggplotly(tooltip = c('text')) %>%
+layout(title = list(text = paste0("Global Vulnerability to Disease ","<br><sup>","Showing the change over time in different countires","</sup>")))
+```
+
+## Zooming In
+```{r, echo = FALSE, height = 12}
+Continent2.0$year <- as.numeric(as.character(Continent2.0$year))
+
+p_facet <- (Continent2.0 %>%
+  ggplot(aes(x = year, y = vun, color = Continent, group = Name,text = paste0('Name: ',Name,'\n','Year: ',year,'\nVulnerability: ',round(vun,2))))+
+  geom_line()+
+    scale_color_viridis_d(option='turbo') +
+    #scale_color_manual(values = cbp1)+
+    theme_classic()+
+  theme(axis.text.x = element_text(angle = 45, hjust=1))+
+labs( y = "vulnerability",color = 'Continents') +
+  theme(panel.background = element_rect(fill = "white", color = "white"), legend.background = element_rect(fill = "white")) +
+  theme(plot.background = element_rect(fill = "white", color = "light grey"), plot.margin = margin(15, 2, 2, 2, "pt"),)+
+  theme(plot.title = element_text(face = "bold"))) +
+  theme(axis.title.x = element_text(margin = margin(t = 8))) + facet_wrap(~Continent)
+
+p_facet %>%
+  ggplotly(tooltip = c('text')) %>%
+layout(title = list(text = paste0("Faceted Global Vulnerability to Disease")))
+
+
+```
+
+## Climate-CHange Induced Disease
 
 ```{r, echo=FALSE}
 #Importing datasets
@@ -169,7 +239,7 @@ ggplotly(allpdp)
 ```
 
 
-```{r}
+```{r,  echo=FALSE}
 allpdp <- ggplot(data = data2020, aes(x = gdp2020)) +
   geom_point(aes(x = gdp2020, y = projecteddeathperc2020, label = Name, color = projecteddeathperc2020, size = pop2020), alpha = .2) + 
   labs(title = "Projected % Increase in Climate-Change Induced Deaths", x = "GDP 2020 ($)", y = "Projected Climate-change Induced Death % Increase", color = "%") + guides(size="none") + scale_colour_gradient(low = 'blue', high = 'red') + theme_bw() + scale_y_continuous(limits = c(1, 1.2), breaks=seq(1, 1.2, by = .02)) +
@@ -178,47 +248,5 @@ allpdp <- ggplot(data = data2020, aes(x = gdp2020)) +
 ggplotly(allpdp)
 ```
 
-## Yair's cool viz
-
-```{r,  echo=FALSE}
-health_vul <- read_csv("./resources/vulnerability/health.csv")
-health_vul <- health_vul %>% 
-  pivot_longer(3:28, names_to="year", values_to="vun") 
-
-Continent2.0 <- health_vul %>%
- mutate(Name = if_else(Name == "Congo, the Democratic Republic o", "DR Congo", Name)) %>%
-  mutate(Name = if_else(Name == "Russian Federation", "Russia", Name)) %>%
-  mutate(Name = if_else(Name == "United Kingdom", "U.K", Name)) %>%
-  mutate(Name = if_else(Name == "Papua New Guinea", "P.N.G", Name)) %>%
-  mutate(Name = if_else(Name == "Venezuela, Bolivarian Republic o", "Venezuela", Name)) %>%
-  filter(Name%in%c("China","India", "Indonesia", "Pakistan", "Bangladesh","Russia","Germany", "U.K", "France", "Italy","Nigeria","Ethiopia", "Egypt", "DR Congo", "South Africa","United States","Mexico", "Canada", "Guatemala", "Cuba","Australia","P.N.G", "New Zealand", "Fiji", "Solomon Islands","Brazil","Colombia", "Argentina", "Peru", "Venezuela")) %>%
-  mutate(Continent =
-            case_when(
-            Name%in%c("Brazil","Colombia", "Argentina", "Peru", "Venezuela") ~
-              "South America",
-            Name%in%c("Australia","P.N.G", "New Zealand", "Fiji", "Solomon Islands") ~ "Oceania",
-            Name%in%c("United States","Mexico", "Canada", "Guatemala", "Cuba") ~ "North America",
-            Name%in%c("Russia","Germany", "U.K", "France", "Italy") ~ "Europe",
-            Name%in%c("Nigeria","Ethiopia", "Egypt", "DR Congo", "South Africa") ~ "Africa",
-          Name%in%c("China","India", "Indonesia", "Pakistan", "Bangladesh") ~ "Asia"))
-
-
-
-p <- (Continent2.0 %>%
-  ggplot(aes(x = year, y = vun, color = Continent, group = Name,text = paste0('Name: ',Name,'\n','Year: ',year,'\nVulnerability: ',round(vun,2))))+
-  geom_line()+
-    scale_color_viridis_d(option='turbo') +
-    #scale_color_manual(values = cbp1)+
-    theme_classic()+
-  theme(axis.text.x = element_text(angle = 45, hjust=1))+
-labs( y = "vulnerability",color = 'Continents') +
-  theme(panel.background = element_rect(fill = "light grey", color = "light grey"), legend.background = element_rect(fill = "lightgrey")) +
-  theme(plot.background = element_rect(fill = "light grey", color = "light grey"), plot.margin = margin(15, 2, 2, 2, "pt"),)+
-  theme(plot.title = element_text(face = "bold")))
-
-p %>%
-  ggplotly(tooltip = c('text')) %>%
-layout(title = list(text = paste0("Global Vulnerability to Disease ","<br><sup>","Showing the change over time in different countires","</sup>")))
-```
 
 ## Conclusion

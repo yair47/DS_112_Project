@@ -1,7 +1,3 @@
----
-  title: "Vulnerability Indicators World Bank https://data.worldbank.org"
-output: flexdashboard::flex_dashboard
----
 
 library(shiny)
 library(leaflet)
@@ -13,7 +9,6 @@ library(htmltools)
 library(DT)
 library(shinyjs)
 library(flex_dashboard)
-
 
 r_colors <- rgb(t(col2rgb(colors()) / 255))
 names(r_colors) <- colors()
@@ -51,8 +46,7 @@ server <- function(input,output, session){
   DT::datatable(map@data[, c("ISO3", "NAME", "projecteddeathperc2020")],
                 rownames = FALSE, options = list(pageLength = 10)
   )
-  
- 
+
   
   #renders the leaflet
   output$mymap <- renderLeaflet({
