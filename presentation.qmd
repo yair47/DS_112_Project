@@ -1,5 +1,5 @@
 ---
-title: "The Risk Global Vulnerability and Gobal Health: to Climate Change The Effects of Climate Change on Global Health & Vulnerability"
+title: "The State of Global Health & Vulnerability as a result of Climate CHange and Other Global Challenges"
 format:
   revealjs:
     embed-resources: true
@@ -28,7 +28,7 @@ library(gganimate)
 
 
 
-## balahhah
+## Vulnerability Over Time
 
 ```{r,  echo=FALSE}
 health_vul <- read_csv("./resources/vulnerability/health.csv")
@@ -71,7 +71,9 @@ p %>%
 layout(title = list(text = paste0("Global Vulnerability to Disease ","<br><sup>","Showing the change over time in different countires","</sup>")))
 ```
 
-## Zooming In
+---
+### Zooming In
+
 ```{r, echo = FALSE, height = 12}
 Continent2.0$year <- as.numeric(as.character(Continent2.0$year))
 
@@ -95,7 +97,9 @@ layout(title = list(text = paste0("Faceted Global Vulnerability to Disease")))
 
 ```
 
-## Climate-CHange Induced Disease
+---
+
+### Climate-Change Induced Disease
 
 ```{r, echo=FALSE}
 #Importing datasets
@@ -227,12 +231,15 @@ allpdp <- ggplot(data = data2020, aes(x = gdp2020)) +
 
 ```
 
-## Graph 1
+
 ```{r echo=FALSE}
 ggplotly(pdp)
 ```
 
+---
+
 ## Graph 2
+
 ```{r echo=FALSE}
 ggplotly(allpdp)
 
