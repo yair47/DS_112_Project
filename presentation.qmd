@@ -26,6 +26,12 @@ library(gganimate)
 
 ```
 
+## Notre Dame Global Adaptation Dataset
+- Data from 192 countries about the vulnerability of countries to climate-change challenges
+- Vulnerability score from 0-1 is made up of multiple indicators from the health sector: 
+  - Projected change of deaths from climate change induced diseases 
+  - Access to improved sanitation facilities  
+  - Number of medical staff (physicians, nurses and midwives) 
 
 
 ## Vulnerability Over Time
@@ -61,14 +67,14 @@ p <- (Continent2.0 %>%
     #scale_color_manual(values = cbp1)+
     theme_classic()+
   theme(axis.text.x = element_text(angle = 45, hjust=1))+
-labs( y = "vulnerability",color = 'Continents') +
+labs( y = "vulnerability",color = 'Continent') +
   theme(panel.background = element_rect(fill = "white", color = "white"), legend.background = element_rect(fill = "white")) +
   theme(plot.background = element_rect(fill = "white", color = "light grey"), plot.margin = margin(15, 2, 2, 2, "pt"),)+
   theme(plot.title = element_text(face = "bold")))
 
 p %>%
   ggplotly(tooltip = c('text')) %>%
-layout(title = list(text = paste0("Global Vulnerability to Disease ","<br><sup>","Showing the change over time in different countires","</sup>")))
+layout(title = list(text = paste0("Global Health Vulnerability ","<br><sup>","Showing the change over time in different countires","</sup>")))
 ```
 
 ---
@@ -85,7 +91,7 @@ p_facet <- (Continent2.0 %>%
     #scale_color_manual(values = cbp1)+
     theme_classic()+
   theme(axis.text.x = element_text(angle = 45, hjust=1))+
-labs( y = "vulnerability",color = 'Continents') +
+labs( y = "vulnerability",color = 'Continent') +
   theme(panel.background = element_rect(fill = "white", color = "white"), legend.background = element_rect(fill = "white")) +
   theme(plot.background = element_rect(fill = "white", color = "light grey"), plot.margin = margin(15, 2, 2, 2, "pt"),)+
   theme(plot.title = element_text(face = "bold"))) +
@@ -93,14 +99,11 @@ labs( y = "vulnerability",color = 'Continents') +
 
 p_facet %>%
   ggplotly(tooltip = c('text')) %>%
-layout(title = list(text = paste0("Faceted Global Vulnerability to Disease")))
+layout(title = list(text = paste0("Global Health Vulnerability by Continent")))
 
 
 ```
 
----
-
-### Climate-Change Induced Disease
 
 ```{r, echo=FALSE}
 #Importing datasets
@@ -195,18 +198,13 @@ data2020 <- pop2020 %>%
   left_join(gdp2020) %>% 
   left_join(medstaff2020) %>% 
   left_join(projecteddeathperc2020)
-
-
 ```
 
 ```{r, echo=FALSE}
 
-  
   hipopdata2020 <- data2020 %>% 
   arrange(desc(pop2020)) %>% 
   filter(pop2020 > 126000000)
-  
-
 
   mostpopdata2020 <- data2020 %>% 
   arrange(desc(pop2020)) %>% 
@@ -215,19 +213,17 @@ data2020 <- pop2020 %>%
 
 ```{r echo=FALSE}
 
+#Will Not Include Top 10 country population Viz 
 pdp <- ggplot(data = hipopdata2020, aes(x = gdp2020)) +
   geom_text(aes(x = gdp2020, y = pop2020, label = Name, color = projecteddeathperc2020), size=2.6) +
   geom_point(aes(x = gdp2020, y = pop2020, label = Name, color = projecteddeathperc2020, size = projecteddeathperc2020), alpha = .1) + 
   labs(title = "Projected % Increase in Climate-Change Induced Deaths \nBy GDP for the 10 Most Populous Countries", x = "GDP 2020 ($)", y = "Population 2020", color = "Projected Climate-change \nInduced Death % Increase") + guides(size="none") + scale_colour_gradient(low = 'blue', high = 'red') + theme_bw() + scale_y_continuous(limits = c(0, 1450000000), breaks=seq(0, 2000000000, by = 100000000), labels = scales::label_number_si()) +
   scale_x_continuous(limits = c(0, 70000), breaks=seq(0, 70000, by = 10000), labels = scales::label_number_si())
 
-ggplotly(pdp)
-
 allpdp <- ggplot(data = data2020, aes(x = gdp2020)) +
   geom_point(aes(x = gdp2020, y = pop2020, label = Name, color = projecteddeathperc2020, size = pop2020), alpha = .2) + 
   labs(title = "Projected % Increase in Climate-Change Induced Deaths", x = "GDP 2020 ($)", y = "Population 2020", color = "Projected Climate-change \nInduced Death % Increase") + guides(size="none") + scale_colour_gradient(low = 'blue', high = 'red') + theme_bw() + scale_y_continuous(limits = c(0, 1450000000), breaks=seq(0, 2000000000, by = 100000000), labels = scales::label_number_si()) +
   scale_x_continuous(limits = c(0, 70000), breaks=seq(0, 70000, by = 10000), labels = scales::label_number_si())
-
 
 
 ```
@@ -243,7 +239,7 @@ ggplotly(allpdp)
 
 ---
 
-### Indicator 2: Climate-Change Inducing Diseases
+### Indicator 1: Climate-Change Inducing Diseases 
 
 ```{r,  echo=FALSE}
 allpdp <- ggplot(data = data2020, aes(x = gdp2020)) +
@@ -307,3 +303,10 @@ leafletdata2020
 
 
 ## Conclusion
+- Vulnerability looks different for each country
+  - Different factors, levels of change
+- Highly correlation with GDP and level of development
+- The countries most vulnerable are in the global south, compounded by multiple levels of vulnerability
+- We saw that over time, countries have had high variation in terms of whether they have trended upwards or downwards in vulnerability
+
+
