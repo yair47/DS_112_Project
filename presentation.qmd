@@ -1,9 +1,9 @@
 ---
-title: "The State of Global Health & Vulnerability as a result of Climate CHange and Other Global Challenges"
-format:
-  revealjs:
-    embed-resources: true
-editor: visual
+title: "The State of Global Health & Vulnerability as a result of Climate Change"
+format: 
+  revealjs: 
+    embed-resources: true 
+editor: visual 
 ---
 
 
@@ -72,6 +72,7 @@ layout(title = list(text = paste0("Global Vulnerability to Disease ","<br><sup>"
 ```
 
 ---
+
 ### Zooming In
 
 ```{r, echo = FALSE, height = 12}
@@ -231,20 +232,18 @@ allpdp <- ggplot(data = data2020, aes(x = gdp2020)) +
 
 ```
 
-
-```{r echo=FALSE}
-ggplotly(pdp)
-```
-
 ---
 
-## Graph 2
+### Indicator 1: Climate-Change Inducing Diseases
 
 ```{r echo=FALSE}
 ggplotly(allpdp)
 
 ```
 
+---
+
+### Indicator 2: Climate-Change Inducing Diseases
 
 ```{r,  echo=FALSE}
 allpdp <- ggplot(data = data2020, aes(x = gdp2020)) +
@@ -253,6 +252,14 @@ allpdp <- ggplot(data = data2020, aes(x = gdp2020)) +
   scale_x_continuous(limits = c(0, 70000), breaks=seq(0, 70000, by = 10000), labels = scales::label_number_si())
 
 ggplotly(allpdp)
+```
+
+## Percent Change Over Time
+
+```{r}
+
+
+
 ```
 
 
