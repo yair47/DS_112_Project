@@ -28,7 +28,7 @@ library(gganimate)
 
 
 
-## Yair's cool viz
+## balahhah
 
 ```{r,  echo=FALSE}
 health_vul <- read_csv("./resources/vulnerability/health.csv")
