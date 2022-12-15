@@ -1,0 +1,123 @@
+---
+title: "Health"
+author: "Shelly Bai"
+date: "2022-12-13"
+output: flexdashboard::flex_dashboard
+runtime: shiny
+---
+
+
+```{r, include=FALSE}
+library(shiny)
+library(leaflet)
+library(dplyr)
+library(shinycssloaders)
+library(rgdal)
+library(plotly)
+library(htmltools)
+library(DT)
+library(shinyjs)
+
+```
+
+```{r, include=FALSE}
+
+  library(readr)
+  data2020 <- read_csv("~/GitHub/DS_112_Project/data2020.csv")
+
+```
+
+Inputs {.sidebar data-width=300}
+-----------------------------------------------------------------------
+
+```{r}
+
+selectInput('color', 'Data', names(data2020))
+
+```
+
+
+    
+Column {data-width=600}
+-------------------------------------
+    
+### Component 1
+    
+```{r}
+
+  
+ 
+  library(rnaturalearth)
+  map <- ne_countries()
+  names(map)[names(map) == "iso_a3"] <- "ISO3"
+  names(map)[names(map) == "name"] <- "NAME"
+  
+  map$vulhealth2020 <- data2020$vulhealth2020[match(map$ISO3,data2020$ISO3)]
+
+map <- reactive({
+        data2020[sample(ncol(data2020), input$color)]
+    })
+
+
+  observe({
+if (input$color == "sanitation2020") {
+  pal <- colorNumeric(
+  palette = "magma", domain = map[[input$color]])
+} else if (input$color == "vulhealth2020") {
+  pal <- colorNumeric(
+  palette = "magma", domain = map[[input$color]])
+} else {
+  pal <- colorNumeric(
+  palette = "magma", domain = map[[input$color]], reverse = FALSE)
+}
+    }
+)
+    
+
+
+map$labels <- paste0(
+  "<strong> Country: </strong> ",
+  map$NAME, "<br/> ",
+  "<strong> Overall Health Vulnerability 2020: </strong> ",
+  map$vulhealth2020, "<br/> "
+) %>%
+  lapply(htmltools::HTML)
+
+leafletdata2020vul <- leaflet(map) %>%
+  addTiles() %>%
+  setView(lng = 0, lat = 30, zoom = 2) %>%
+  addPolygons(
+    fillColor = ~ pal(map[[input$color]]),
+    color = "white",
+    weight = 2,
+    fillOpacity = 1,
+    label = ~labels,
+    highlight = highlightOptions(
+      color = "black",
+      bringToFront = TRUE
+    )
+  ) %>%
+  leaflet::addLegend(
+    pal = pal, values = ~map[[input$color]],
+    opacity = 0.7, title = "Health Vulnerability </br> Score in 2020"
+  )
+
+
+
+```
+   
+Column {data-width=400}
+-------------------------------------
+   
+### Component 2
+
+```{r}
+
+
+```   
+ 
+### Component 3
+    
+```{r}
+
+```

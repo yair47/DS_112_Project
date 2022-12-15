@@ -194,10 +194,19 @@ medstaff2020 <- id_health_medstaff %>%
 projecteddeathperc2020 <- projecteddeath_perc %>% 
   rename("projecteddeathperc2020" = "2020")
 
+sanitationall <- read_csv("resources/indicators/id_heal_06/input.csv")
+
+sanitation2020 <- sanitationall %>% 
+  select(ISO3, Name, "2020") %>% 
+  rename("sanitation2020" = "2020")
+
+
 data2020 <- pop2020 %>% 
   left_join(gdp2020) %>% 
   left_join(medstaff2020) %>% 
-  left_join(projecteddeathperc2020)
+  left_join(projecteddeathperc2020) %>% 
+  left_join(sanitation2020)
+  
 ```
 
 ```{r, echo=FALSE}
@@ -230,7 +239,7 @@ allpdp <- ggplot(data = data2020, aes(x = gdp2020)) +
 
 ---
 
-### Indicator 1: Climate-Change Inducing Diseases
+### Climate-Change Induced Diseases
 
 ```{r echo=FALSE}
 ggplotly(allpdp)
@@ -239,7 +248,7 @@ ggplotly(allpdp)
 
 ---
 
-### Indicator 1: Climate-Change Inducing Diseases 
+### Climate-Change Induced Diseases 
 
 ```{r,  echo=FALSE}
 allpdp <- ggplot(data = data2020, aes(x = gdp2020)) +
@@ -250,12 +259,15 @@ allpdp <- ggplot(data = data2020, aes(x = gdp2020)) +
 ggplotly(allpdp)
 ```
 
+---
 
-## Percent Change Over Time
+### Percent Change Over Time
 
 ```{r, echo = FALSE}
 
-data2020 <- read_csv("data2020.csv")
+
+
+
 
 library(rnaturalearth)
 map <- ne_countries()
@@ -301,12 +313,57 @@ leafletdata2020
 
 ```
 
+## Sanitation Accessibility %
+
+```{r, echo = FALSE}
+
+map$sanitation2020 <- data2020$sanitation2020[match(map$ISO3,data2020$ISO3)]
+
+pal <- colorBin(
+  palette = "magma", domain = map$sanitation2020,
+  bins = seq(1, max(map$sanitation2020, na.rm = TRUE) + 0, by = 10)
+)
+
+
+map$labels <- paste0(
+  "<strong> Country: </strong> ",
+  map$NAME, "<br/> ",
+  "<strong> sanitation2020: </strong> ",
+  map$sanitation2020, "<br/> "
+) %>%
+  lapply(htmltools::HTML)
+
+leafletdata2020san <- leaflet(map) %>%
+  addTiles() %>%
+  setView(lng = 0, lat = 30, zoom = 2) %>%
+  addPolygons(
+    fillColor = ~ pal(sanitation2020),
+    color = "white",
+    weight = 2,
+    fillOpacity = 1,
+    label = ~labels,
+    highlight = highlightOptions(
+      color = "black",
+      bringToFront = TRUE
+    )
+  ) %>%
+  leaflet::addLegend(
+    pal = pal, values = ~sanitation2020,
+    opacity = 0.7, title = "sanitation2020"
+  )
+
+leafletdata2020san
+
+```
+
 
 ## Conclusion
 - Vulnerability looks different for each country
   - Different factors, levels of change
 - Highly correlation with GDP and level of development
 - The countries most vulnerable are in the global south, compounded by multiple levels of vulnerability
-- We saw that over time, countries have had high variation in terms of whether they have trended upwards or downwards in vulnerability
+- High variation of vulnerability over time
+### Vulnerability is multi-faceted
+
 
 

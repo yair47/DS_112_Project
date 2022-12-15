@@ -47,7 +47,7 @@ gdp <- read_csv("~/GitHub/DS_112_Project/resources/indicators/gdp/score.csv",
         `2014` = col_skip(), `2015` = col_skip(), 
         `2016` = col_skip(), `2017` = col_skip(), 
         `2018` = col_skip(), `2019` = col_skip()))
-View(gdp)
+
 
 pop <- read_csv("~/GitHub/DS_112_Project/resources/indicators/pop/input.csv", 
     col_types = cols(`1995` = col_skip(), 
@@ -63,7 +63,7 @@ pop <- read_csv("~/GitHub/DS_112_Project/resources/indicators/pop/input.csv",
         `2014` = col_skip(), `2015` = col_skip(), 
         `2016` = col_skip(), `2017` = col_skip(), 
         `2018` = col_skip(), `2019` = col_skip()))
-View(pop)
+
 
 #projected percent increase in climate-change induced deaths
 projecteddeath_perc <- read_csv("~/GitHub/DS_112_Project/resources/indicators/id_heal_01/input.csv",
@@ -84,7 +84,8 @@ projecteddeath_perc <- read_csv("~/GitHub/DS_112_Project/resources/indicators/id
 projecteddeath_perc_all <- read_csv("~/GitHub/DS_112_Project/resources/indicators/id_heal_01/input.csv")
 
 vulhealth <- read_csv("resources/vulnerability/health.csv")
-View(vulhealth)
+
+
 
 ```
 
@@ -96,7 +97,15 @@ id_health_medstaff <- id_health_medstaff %>%
   arrange(desc(percchange))
 
 mean(id_health_medstaff$percchange,na.rm=T)
+
+ggplot()
   
+
+```
+```{r}
+
+
+
 
 ```
 
@@ -115,10 +124,19 @@ medstaff2020 <- id_health_medstaff %>%
 projecteddeathperc2020 <- projecteddeath_perc %>% 
   rename("projecteddeathperc2020" = "2020")
 
+
+sanitationall <- read_csv("resources/indicators/id_heal_06/input.csv")
+
+sanitation2020 <- sanitation %>% 
+  select(ISO3, Name, "2020") %>% 
+  rename("sanitation2020" = "2020")
+
+
 data2020 <- pop2020 %>% 
   left_join(gdp2020) %>% 
   left_join(medstaff2020) %>% 
-  left_join(projecteddeathperc2020)
+  left_join(projecteddeathperc2020) %>% 
+  left_join(sanitation2020)
 
 
 ```
@@ -226,6 +244,20 @@ leafletdata2020 <- leaflet(map) %>%
   )
 
 leafletdata2020
+
+```
+
+
+```{r}
+
+
+
+```
+
+```{r}
+
+
+
 
 ```
 

@@ -1,0 +1,299 @@
+---
+title: "Comp/Stat 112 Report: The State of Global Health & Vulnerability as a Result of Climate Change"
+author: "Shelly Bai, Yair Castillo Palacios"
+date: "2022-12-15"
+output: html_document
+---
+
+
+```{r setup, include=FALSE}
+#Packages loaded
+knitr::opts_chunk$set(echo = FALSE)
+library(readr)
+library(tidyverse)
+library(ggplot2)
+library(lubridate)
+library(dplyr)
+library(rvest)
+library(magrittr)
+library(ggmap)
+library(stringr)
+library(rworldmap)
+library(scales)
+library(plotly)
+library(leaflet)
+library(gganimate)
+
+```
+
+
+
+```{r, echo=FALSE}
+
+#Code to have all viz appear
+
+# pdp 1
+allpdp <- ggplot(data = data2020, aes(x = gdp2020)) +
+  geom_point(aes(x = gdp2020, y = pop2020, label = Name, color = projecteddeathperc2020, size = pop2020), alpha = .2) + 
+  labs(title = "Projected % Increase in Climate-Change Induced Deaths", x = "GDP 2020 ($)", y = "Population 2020", color = "Projected Climate-change \nInduced Death % Increase") + guides(size="none") + scale_colour_gradient(low = 'blue', high = 'red') + theme_bw() + scale_y_continuous(limits = c(0, 1450000000), breaks=seq(0, 2000000000, by = 100000000), labels = scales::label_number_si()) +
+  scale_x_continuous(limits = c(0, 70000), breaks=seq(0, 70000, by = 10000), labels = scales::label_number_si())
+
+# pdp 2
+allpdp2 <- ggplot(data = data2020, aes(x = gdp2020)) +
+  geom_point(aes(x = gdp2020, y = projecteddeathperc2020, label = Name, color = projecteddeathperc2020, size = pop2020), alpha = .2) + 
+  labs(title = "Projected % Increase in Climate-Change Induced Deaths", x = "GDP 2020 ($)", y = "Projected Climate-change Induced Death % Increase", color = "%") + guides(size="none") + scale_colour_gradient(low = 'blue', high = 'red') + theme_bw() + scale_y_continuous(limits = c(1, 1.2), breaks=seq(1, 1.2, by = .02)) +
+  scale_x_continuous(limits = c(0, 70000), breaks=seq(0, 70000, by = 10000), labels = scales::label_number_si())
+
+#Getting map country polygons from rnaturalearth package and matching codes
+library(rnaturalearth)
+map <- ne_countries()
+names(map)[names(map) == "iso_a3"] <- "ISO3"
+names(map)[names(map) == "name"] <- "NAME"
+
+map$projecteddeathperc2020 <- data2020$projecteddeathperc2020[match(map$ISO3,data2020$ISO3)]
+
+#Creating palette
+pal <- colorBin(
+  palette = "magma", domain = map$projecteddeathperc2020,
+  bins = seq(1, max(map$projecteddeathperc2020, na.rm = TRUE) + 0, by = .01)
+)
+
+map$labels <- paste0(
+  "<strong> Country: </strong> ",
+  map$NAME, "<br/> ",
+  "<strong> projecteddeathperc2020: </strong> ",
+  map$projecteddeathperc2020, "<br/> "
+) %>%
+  lapply(htmltools::HTML)
+
+#Map aesthetic adjustments
+leafletdata2020 <- leaflet(map) %>%
+  addTiles() %>%
+  setView(lng = 0, lat = 30, zoom = 2) %>%
+  addPolygons(
+    fillColor = ~ pal(projecteddeathperc2020),
+    color = "white",
+    weight = 2,
+    fillOpacity = 1,
+    label = ~labels,
+    highlight = highlightOptions(
+      color = "black",
+      bringToFront = TRUE
+    )
+  ) %>%
+  leaflet::addLegend(
+    pal = pal, values = ~projecteddeathperc2020,
+    opacity = 0.7, title = "Projected Climate-Change </br>Induced Death Percentage </br> from 2000 to 2030"
+  )
+
+
+
+```
+
+```{r, echo = false}
+write.csv(data2020,"C:\\Users\\seash\\Documents\\GitHub\\DS_112_Project\\data2020.csv", row.names = FALSE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+
+
+```{r, echo=FALSE}
+
+ggplotly(allpdp)
+ggplotly(allpdp2)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r, echo=FALSE}
+
+leafletdata2020
+
+```
+
+## Appendix of Code:
+
+[Github Repository](https://github.com/yair47/DS_112_Project)
+
+### General Trends of Vulnerability
+```{r}
+
+
+```
+
+### Specific Indicator Data
+Importing Data
+```{r}
+#Importing datasets
+
+id_health_medstaff <- read_csv("resources/indicators/id_heal_04/input.csv")
+
+gdp <- read_csv("resources/indicators/gdp/score.csv")
+
+pop <- read_csv("resources/indicators/pop/input.csv")
+
+
+#projected percent increase in climate-change induced deaths
+
+projecteddeath_perc <- read_csv("resources/indicators/id_heal_01/input.csv")
+
+projecteddeath_perc <- read_csv("resources/indicators/id_heal_01/input.csv")
+
+sanitationall <- read_csv("resources/indicators/id_heal_06/input.csv")
+
+vulhealth <- read_csv("resources/vulnerability/health.csv")
+
+#Selecting only 2020 data
+pop2020 <- pop%>% 
+  select(ISO3, Name, "2020") %>% 
+  rename("pop2020" = "2020")
+
+gdp2020 <- gdp %>% 
+  select(ISO3, Name, "2020") %>% 
+  rename("gdp2020" = "2020")
+
+medstaff2020 <- id_health_medstaff %>% 
+  rename("medstaff2020" = "2020") %>% 
+  select(ISO3,Name,medstaff2020)
+
+projecteddeathperc2020 <- projecteddeath_perc %>% 
+  select(ISO3, Name, "2020") %>% 
+  rename("projecteddeathperc2020" = "2020")
+
+sanitation2020 <- sanitationall %>% 
+  select(ISO3, Name, "2020") %>% 
+  rename("sanitation2020" = "2020")
+
+vulhealth2020 <- vulhealth %>% 
+  select(ISO3, Name, "2020") %>% 
+  rename("vulhealth2020" = "2020")
+
+#Joining data
+data2020 <- pop2020 %>% 
+  left_join(gdp2020) %>% 
+  left_join(vulhealth2020) %>% 
+  left_join(medstaff2020) %>% 
+  left_join(projecteddeathperc2020) %>% 
+  left_join(sanitation2020) 
+  
+
+```
+
+```{r}
+
+allpdp <- ggplot(data = data2020, aes(x = gdp2020)) +
+  geom_point(aes(x = gdp2020, y = pop2020, label = Name, color = projecteddeathperc2020, size = pop2020), alpha = .2) + 
+  labs(title = "Projected % Increase in Climate-Change Induced Deaths", x = "GDP 2020 ($)", y = "Population 2020", color = "Projected Climate-change \nInduced Death % Increase") + guides(size="none") + scale_colour_gradient(low = 'blue', high = 'red') + theme_bw() + scale_y_continuous(limits = c(0, 1450000000), breaks=seq(0, 2000000000, by = 100000000), labels = scales::label_number_si()) +
+  scale_x_continuous(limits = c(0, 70000), breaks=seq(0, 70000, by = 10000), labels = scales::label_number_si())
+
+ggplotly(allpdp)
+
+```
+
+
+```{r}
+allpdp2 <- ggplot(data = data2020, aes(x = gdp2020)) +
+  geom_point(aes(x = gdp2020, y = projecteddeathperc2020, label = Name, color = projecteddeathperc2020, size = pop2020), alpha = .2) + 
+  labs(title = "Projected % Increase in Climate-Change Induced Deaths", x = "GDP 2020 ($)", y = "Projected Climate-change Induced Death % Increase", color = "%") + guides(size="none") + scale_colour_gradient(low = 'blue', high = 'red') + theme_bw() + scale_y_continuous(limits = c(1, 1.2), breaks=seq(1, 1.2, by = .02)) +
+  scale_x_continuous(limits = c(0, 70000), breaks=seq(0, 70000, by = 10000), labels = scales::label_number_si())
+
+ggplotly(allpdp2)
+
+```
+
+```{r}
+
+#Getting map country polygons from rnaturalearth package and matching codes
+library(rnaturalearth)
+map <- ne_countries()
+names(map)[names(map) == "iso_a3"] <- "ISO3"
+names(map)[names(map) == "name"] <- "NAME"
+
+map$projecteddeathperc2020 <- data2020$projecteddeathperc2020[match(map$ISO3,data2020$ISO3)]
+
+#Creating palette
+pal <- colorBin(
+  palette = "magma", domain = map$projecteddeathperc2020,
+  bins = seq(1, max(map$projecteddeathperc2020, na.rm = TRUE) + 0, by = .01)
+)
+
+map$labels <- paste0(
+  "<strong> Country: </strong> ",
+  map$NAME, "<br/> ",
+  "<strong> projecteddeathperc2020: </strong> ",
+  map$projecteddeathperc2020, "<br/> "
+) %>%
+  lapply(htmltools::HTML)
+
+#Map aesthetic adjustments
+leafletdata2020 <- leaflet(map) %>%
+  addTiles() %>%
+  setView(lng = 0, lat = 30, zoom = 2) %>%
+  addPolygons(
+    fillColor = ~ pal(projecteddeathperc2020),
+    color = "white",
+    weight = 2,
+    fillOpacity = 1,
+    label = ~labels,
+    highlight = highlightOptions(
+      color = "black",
+      bringToFront = TRUE
+    )
+  ) %>%
+  leaflet::addLegend(
+    pal = pal, values = ~projecteddeathperc2020,
+    opacity = 0.7, title = "Projected Climate-Change </br>Induced Death Percentage </br> from 2000 to 2030"
+  )
+
+leafletdata2020
+
+```
+```{r}
+
+map$vulhealth2020 <- data2020$vulhealth2020[match(map$ISO3,data2020$ISO3)]
+
+pal <- colorNumeric(
+  palette = "magma", domain = map$vulhealth2020,
+)
+
+
+map$labels <- paste0(
+  "<strong> Country: </strong> ",
+  map$NAME, "<br/> ",
+  "<strong> Overall Health Vulnerability 2020: </strong> ",
+  map$vulhealth2020, "<br/> "
+) %>%
+  lapply(htmltools::HTML)
+
+leafletdata2020vul <- leaflet(map) %>%
+  addTiles() %>%
+  setView(lng = 0, lat = 30, zoom = 2) %>%
+  addPolygons(
+    fillColor = ~ pal(vulhealth2020),
+    color = "white",
+    weight = 2,
+    fillOpacity = 1,
+    label = ~labels,
+    highlight = highlightOptions(
+      color = "black",
+      bringToFront = TRUE
+    )
+  ) %>%
+  leaflet::addLegend(
+    pal = pal, values = ~vulhealth2020,
+    opacity = 0.7, title = "Health Vulnerability </br> Score in 2020"
+  )
+
+leafletdata2020vul
+
+```
+```{r}
+
+
+```
+
