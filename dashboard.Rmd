@@ -102,7 +102,7 @@ leafletdata2020vul <- leaflet(map) %>%
     opacity = 0.7, title = "Health Vulnerability </br> Score in 2020"
   )
 
-
+leafletdata2020vul
 
 ```
    

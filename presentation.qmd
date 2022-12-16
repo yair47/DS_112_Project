@@ -251,12 +251,12 @@ ggplotly(allpdp)
 ### Climate-Change Induced Diseases 
 
 ```{r,  echo=FALSE}
-allpdp <- ggplot(data = data2020, aes(x = gdp2020)) +
+allpdp2 <- ggplot(data = data2020, aes(x = gdp2020)) +
   geom_point(aes(x = gdp2020, y = projecteddeathperc2020, label = Name, color = projecteddeathperc2020, size = pop2020), alpha = .2) + 
   labs(title = "Projected % Increase in Climate-Change Induced Deaths", x = "GDP 2020 ($)", y = "Projected Climate-change Induced Death % Increase", color = "%") + guides(size="none") + scale_colour_gradient(low = 'blue', high = 'red') + theme_bw() + scale_y_continuous(limits = c(1, 1.2), breaks=seq(1, 1.2, by = .02)) +
   scale_x_continuous(limits = c(0, 70000), breaks=seq(0, 70000, by = 10000), labels = scales::label_number_si())
 
-ggplotly(allpdp)
+ggplotly(allpdp2)
 ```
 
 ---
@@ -280,7 +280,6 @@ pal <- colorBin(
   palette = "magma", domain = map$projecteddeathperc2020,
   bins = seq(1, max(map$projecteddeathperc2020, na.rm = TRUE) + 0, by = .01)
 )
-
 
 map$labels <- paste0(
   "<strong> Country: </strong> ",
@@ -319,9 +318,49 @@ leafletdata2020
 
 map$sanitation2020 <- data2020$sanitation2020[match(map$ISO3,data2020$ISO3)]
 
-pal <- colorBin(
+pal <- colorNumeric(
   palette = "magma", domain = map$sanitation2020,
-  bins = seq(1, max(map$sanitation2020, na.rm = TRUE) + 0, by = 10)
+)
+
+
+map$labels <- paste0(
+  "<strong> Country: </strong> ",
+  map$NAME, "<br/> ",
+  "<strong> sanitation2020: </strong> ",
+  map$sanitation2020, "<br/> "
+) %>%
+  lapply(htmltools::HTML)
+
+leafletdata2020san <- leaflet(map) %>%
+  addTiles() %>%
+  setView(lng = 0, lat = 30, zoom = 2) %>%
+  addPolygons(
+    fillColor = ~ pal(sanitation2020),
+    color = "white",
+    weight = 2,
+    fillOpacity = 1,
+    label = ~labels,
+    highlight = highlightOptions(
+      color = "black",
+      bringToFront = TRUE
+    )
+  ) %>%
+  leaflet::addLegend(
+    pal = pal, values = ~sanitation2020,
+    opacity = 0.7, title = "sanitation2020"
+  )
+
+leafletdata2020san
+
+```
+
+
+```{r}
+
+map$sanitation2020 <- data2020$sanitation2020[match(map$ISO3,data2020$ISO3)]
+
+pal <- colorNumeric(
+  palette = "magma", domain = map$sanitation2020,
 )
 
 

@@ -88,10 +88,16 @@ data2020 <- pop2020 %>%
 
 
 # pdp 1
+
+  hipopdata2020 <- data2020 %>% 
+  arrange(desc(pop2020)) %>% 
+  filter(pop2020 > 126000000)
+  
+
 allpdp <- ggplot(data = data2020, aes(x = gdp2020)) +
   geom_point(aes(x = gdp2020, y = pop2020, label = Name, color = projecteddeathperc2020, size = pop2020), alpha = .2) + 
   labs(title = "Projected % Increase in Climate-Change Induced Deaths", x = "GDP 2020 ($)", y = "Population 2020", color = "Projected Climate-change \nInduced Death % Increase") + guides(size="none") + scale_colour_gradient(low = 'blue', high = 'red') + theme_bw() + scale_y_continuous(limits = c(0, 1450000000), breaks=seq(0, 2000000000, by = 100000000), labels = scales::label_number_si()) +
-  scale_x_continuous(limits = c(0, 70000), breaks=seq(0, 70000, by = 10000), labels = scales::label_number_si()) 
+  scale_x_continuous(limits = c(0, 70000), breaks=seq(0, 70000, by = 10000), labels = scales::label_number_si()) +  geom_text(data=hipopdata2020, aes(x = gdp2020, y = pop2020, label = Name, color = projecteddeathperc2020), size=2.6)
 
 # pdp 2
 allpdp2 <- ggplot(data = data2020, aes(x = gdp2020)) +
@@ -286,12 +292,12 @@ layout(title = list(text = paste0("Global Health Vulnerability by Continent")))
 ## Climate-Change-induced effects on Global Health & Vulnerability 
 
 
-Climate change is a phenomenon that is rapidly increasing health risks around the globe, but especially in developing nations. Many countries still rely on small-scale decentralized healthcare systems that heavily depend on the availability of healthcare personnel, and they likely do not have contingency plans in place if a crisis were to arise. These fragile systems are most susceptible to breaking down in the face of climate disaster. For our project, we wanted to examine Climate-Change-induced diseases from around the globe, specifically focusing on how they affect the health and vulnerability of those countries. 
+Climate change is a phenomenon that is rapidly increasing health risks around the globe, but especially in developing nations. Many countries still rely on small-scale decentralized healthcare systems that heavily depend on the availability of healthcare personnel, and they likely do not have contingency plans in place if a crisis were to arise. These fragile systems are most susceptible to breaking down in the face of climate disaster. For our project, we wanted to examine climate-change-induced diseases from around the globe, specifically focusing on how they affect the health and vulnerability of those countries. To explore further data, visit the [Shiny Interactive Maps](https://gain.nd.edu/our-work/country-index/)
 
-This health vulnerability data comes from the Notre Dame Global Adaptation Dataset, with information about climate change impacts on the health sector from the time period of 1995 to 2020. This dataset covers 192 countries recognized by the UN, and scores the countries' vulnerability from 0 to 1 (0 being the lowest vulnerability, and 1 being the highest vulnerability). This total vulnerability score is based on numerous factors, including projected change of deaths from climate change-induced diseases, access to improved sanitation facilities, and number of medical staff. 
+This health vulnerability data comes from the [Notre Dame Global Adaptation Dataset](https://gain.nd.edu/our-work/country-index/), with information about climate change impacts on the health sector from the time period of 1995 to 2020. This dataset covers 192 countries recognized by the UN, and scores the countries' vulnerability from 0 to 1 (0 being the lowest vulnerability, and 1 being the highest vulnerability). This total vulnerability score is based on numerous factors, including projected change of deaths from climate change-induced diseases, access to improved sanitation facilities, and number of medical staff. 
 
 
-To grasp a general sense of trends in the past 25 years, this first visualization displays vulnerability over time in different regions of the world. There are six continents which include Africa, Asia, Europe, Oceania, South America, and North America. We created this data by using the top five countries with the most population in all of those countries. Choosing countries with the highest population would be more logical due to the fact that those countries represent the majority of the region. By generalizing each country's vulnerability by population, we were able to gain a snapshot of trends for each region. Small populations in certain regions may be more or less affected by climate change and would not be included in some subsets of our regions, but we controlled this factor by including some countries even with a population less than 500,000 in that region.
+To grasp a general sense of trends in over 25 years, this first visualization displays vulnerability over time in different regions of the world. There are six continents which include Africa, Asia, Europe, Oceania, South America, and North America. We created this data by using the top five countries with the most population in all of those countries. Choosing countries with the highest population would be more logical due to the fact that those countries represent the majority of the region. By generalizing each country's vulnerability by population, we were able to gain a snapshot of trends for each region. Small populations in certain regions may be more or less affected by climate change and would not be included in some subsets of our regions, but we controlled this factor by including some countries even with a population less than 500,000 in that region.
 Specifically, Africa was represented by the Democratic Republic of Congo, Nigeria, Ethiopia, Egypt, and South Africa. Asia was represented by China, India, Indonesia, Pakistan, and Bangladesh. Europe was represented by Russia, Germany, United Kingdom, France, and Italy. Oceania was represented by Australia, Papua New Guinea, New Zealand, Fiji, and Solomon Islands. South America was represented by Brazil, Colombia, Argentina, Peru, and Venezuela. Lastly, North America is represented by the United States, Mexico, Canada, Guatemala, and Cuba.
 
 ```{r, echo = FALSE, warning = FALSE, show_col_types = FALSE, message=FALSE}
@@ -324,8 +330,8 @@ Since 1995, we’ve seen some countries gradually decrease in vulnerability, sta
 ggplotly(allpdp)
 ```
 
-The projected percentage increase in climate-change induced deaths is a comprehensive assessment of the effects of climate change on overall health impacts. This risk indicator is the estimated percent increase of quality-adjusted loss of life years, also known as DALYs (Disability adjusted life years), from the historical baseline of 2000 to 2030, under conditions from current climate change emission scenarios. 
-Projected risk is correlated against Gross Domestic Product (GDP) and population, with GDP used as a measure of development. From the graph, we see that countries most at risk are in red, and largely skewed towards the low GDP end of the spectrum. Low GDP is correlated with higher projected increase of climate-change induced deaths. Countries with both large population bubbles and high percentages have the highest number of people at risk.
+The projected percentage increase in climate-change induced deaths is a comprehensive assessment of the effects of climate change on overall health impacts. This risk indicator is the estimated percent increase of quality-adjusted loss of life years, also known as DALYs (Disability adjusted life years), projected from the historical baseline of 2000 to 2030, under conditions from current climate change emission scenarios. 
+With GDP used as a measure of development,  projected risk is mapped along with population to assess countries with the highest loss. The countries with the top 10 highest populations are labeled, to give an idea of the spread of risk across the largest proportion of the global population. From the graph, we see that countries most at risk are in red, and largely skewed towards the low GDP end of the spectrum. Low GDP is correlated with higher projected increase of climate-change induced deaths. Countries with both large population bubbles and high percentages have the highest number of people at risk.
 
 
 ```{r, echo=FALSE, warning = FALSE, show_col_types = FALSE, message=FALSE}
@@ -340,7 +346,6 @@ For detailed data on the percentage risk of each country, take a look at this ta
 
 ```{r, echo=FALSE, warning = FALSE, show_col_types = FALSE, message=FALSE}
 
-leafletdata2020
 library(DT)
 DT::datatable(map@data[, c("ISO3", "NAME", "projecteddeathperc2020")],
   rownames = FALSE, options = list(pageLength = 8))
@@ -365,7 +370,7 @@ Spatially distributing the data gives us some information about how geography pl
 leafletdata2020san
 
 ```
-Sanitation is an important indicator of  a country’s capacity to control infectious diseases. Sufficient sanitation is measured as the percentage of people in that country with access to clean sanitation facilities that can effectively prevent human, animal, and insect contact with excreta. Access to sanitation is crucial to build up preparedness to various natural disasters exacerbated by climate change, as climate effects lead to rise in infectious diseases. Looking at the spatial distribution, we notice that many developed countries have close to 90% accessibility, but many developed countries also have surprisingly low percentages, like France or Canada. This is a clue that some populations within those regions may have poor accessibility to sanitation, and are most at risk to climate events, even if the developed parts of the country have low vulnerability overall. We also see a lot of missing data for countries in Sub-Saharan Africa and in the Central area of Eurasia, an indicator that the sanitation accessibility is poorly reported on and likely poorly maintained, and not resilient systems that could withstand climate disasters.
+Sanitation is an important indicator of  a country’s capacity to control infectious diseases. Sufficient sanitation is measured as the percentage of people in that country with access to clean sanitation facilities that can effectively prevent human, animal, and insect contact with excreta. Access to sanitation is crucial to build up preparedness to various natural disasters exacerbated by climate change, as climate effects lead to rise in infectious diseases. Looking at the spatial distribution, we notice that many developed countries have close to 90% accessibility, but many developed countries also have surprisingly low percentages, like France or Canada. This is a clue that some populations within those regions may have poor accessibility to sanitation, and are most at risk to climate events, even if the developed parts of the country have low vulnerability overall. We also see a lot of missing data for countries in Sub-Saharan Africa and in the Central area of Eurasia, an indicator that the sanitation accessibility there is poorly reported on and likely poorly maintained, and not resilient systems that could withstand climate disasters.
 
 ### Global Medical Staff
 The proportion of medical staff in a country is an important indicator of health outcomes and resilience to climate-change induced crises. Globally, the number of doctors, midwives, and nurses has decreased by over 6.7 people per 1000 from 1995 to 2020. The growth of medical staff has not has not kept pace with the growing population, especially as the world population has increased by over a third since 1995. 
@@ -518,11 +523,16 @@ data2020 <- pop2020 %>%
 ```
 
 ```{r, echo=TRUE}
-
+#Selecting for the top 10 countries to highlight in the chart
+hipopdata2020 <- data2020 %>% 
+  arrange(desc(pop2020)) %>% 
+  filter(pop2020 > 126000000)
+  
+#Plotting the data
 allpdp <- ggplot(data = data2020, aes(x = gdp2020)) +
   geom_point(aes(x = gdp2020, y = pop2020, label = Name, color = projecteddeathperc2020, size = pop2020), alpha = .2) + 
   labs(title = "Projected % Increase in Climate-Change Induced Deaths", x = "GDP 2020 ($)", y = "Population 2020", color = "Projected Climate-change \nInduced Death % Increase") + guides(size="none") + scale_colour_gradient(low = 'blue', high = 'red') + theme_bw() + scale_y_continuous(limits = c(0, 1450000000), breaks=seq(0, 2000000000, by = 100000000), labels = scales::label_number_si()) +
-  scale_x_continuous(limits = c(0, 70000), breaks=seq(0, 70000, by = 10000), labels = scales::label_number_si())
+  scale_x_continuous(limits = c(0, 70000), breaks=seq(0, 70000, by = 10000), labels = scales::label_number_si()) +  geom_text(data=hipopdata2020, aes(x = gdp2020, y = pop2020, label = Name, color = projecteddeathperc2020), size=2.6)
 
 ggplotly(allpdp)
 
@@ -530,6 +540,7 @@ ggplotly(allpdp)
 
 
 ```{r, echo=TRUE}
+#Plotting a version with percentage on the y axis, visually grouping countries by similar percentages
 allpdp2 <- ggplot(data = data2020, aes(x = gdp2020)) +
   geom_point(aes(x = gdp2020, y = projecteddeathperc2020, label = Name, color = projecteddeathperc2020, size = pop2020), alpha = .2) + 
   labs(title = "Projected % Increase in Climate-Change Induced Deaths", x = "GDP 2020 ($)", y = "Projected Climate-change Induced Death % Increase", color = "%") + guides(size="none") + scale_colour_gradient(low = 'blue', high = 'red') + theme_bw() + scale_y_continuous(limits = c(1, 1.2), breaks=seq(1, 1.2, by = .02)) +

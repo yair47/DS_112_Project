@@ -1,4 +1,3 @@
-
 library(shiny)
 library(leaflet)
 library(dplyr)
@@ -8,58 +7,81 @@ library(plotly)
 library(htmltools)
 library(DT)
 library(shinyjs)
+library(flexdashboard)
+
+library(readr)
+data2020 <- read_csv("~/GitHub/DS_112_Project/data2020.csv")
 
 r_colors <- rgb(t(col2rgb(colors()) / 255))
 names(r_colors) <- colors()
 
-#vars <- c("vulnerabilty" = "vulhealth2020", "Projected Percent Increase of Climate-Change Induced Deaths"  = "projecteddeathperc2020",
-#          "Sanitation Accessibility" = "sanitation2020")
+chosen <- c("Overall Health Vulnerabilty" = "vulhealth2020", "Projected Percent Increase of Climate-Change Induced Deaths"  = "projecteddeathperc2020",
+          "Sanitation Accessibility" = "sanitation2020", "Medical Staff in Developing Countries" = "medstaff2020")
 
 ui <- fluidPage(
   tags$head(HTML("<title>Health Indicator Data</title>")),
   useShinyjs(),
   br(),
-  titlePanel("Global Vulnerability Health Indicator Data"),
+  titlePanel("The State of Global Health & Vulnerability as a Result of Climate Change"),
   
-  
-  br(),
-  
- sidebarLayout(position = 'right',
+ sidebarLayout(position = "right",
                sidebarPanel(
-                 selectInput("color","Color", vars, selected ="vulhealth2020"),
-                 width = 2),
+                 selectInput(
+                   inputId = "variableselected",
+                   label = "Select variable",
+                   choices = chosen
+                   )
+                 ),
                  
-                 #leaflet Output!!
-                 mainPanel(leafletOutput("mymap", height = 1000)))
+                 
+              
+                 mainPanel(
+                   
+                   #leaflet Output!!
+                   h3("Global Indicator Data"),
+                   leafletOutput("mymap", height = 600),
+                           
+                           br(),
+                           br(),
+               
+               #Table output
+               h3("Table Data"),
+               DTOutput(outputId = "table"),
+               )
+ )
                
 )
 
 server <- function(input,output, session){
-  
-  library(readr)
-  data2020 <- read_csv("~/GitHub/DS_112_Project/data2020.csv")
-  
- 
-  library(rnaturalearth)
-  map <- ne_countries()
-  names(map)[names(map) == "iso_a3"] <- "ISO3"
-  names(map)[names(map) == "name"] <- "NAME"
-  
-  map$vulhealth2020 <- data2020$vulhealth2020[match(map$ISO3,data2020$ISO3)]
+
+  #renders the table of data
+  output$table <- renderDT(data2020)
 
   
   #renders the leaflet
   output$mymap <- renderLeaflet({
     
+    library(rnaturalearth)
+    map <- ne_countries()
+    names(map)[names(map) == "iso_a3"] <- "ISO3"
+    names(map)[names(map) == "name"] <- "NAME"
+    
+    
+    ordercounties <- match(map@data$ISO3, data2020$ISO3)
+    map@data <- data2020[ordercounties, ]
+    
+    map$variableplot <- as.numeric(unlist((map@data[, input$variableselected])))
+    
     pal <- colorNumeric(
-      palette = "magma", domain = map$vulhealth2020,
+      palette = "inferno", domain = map$variableplot,
     )
+    
     
     map$labels <- paste0(
       "<strong> Country: </strong> ",
       map$NAME, "<br/> ",
       "<strong> Overall Health Vulnerability 2020: </strong> ",
-      map$vulhealth2020, "<br/> "
+      map$variableplot, "<br/> "
     ) %>%
       lapply(htmltools::HTML)
     
@@ -67,7 +89,7 @@ server <- function(input,output, session){
       addTiles() %>%
       setView(lng = 0, lat = 30, zoom = 2) %>%
       addPolygons(
-        fillColor = ~ pal(vulhealth2020),
+        fillColor = ~ pal(variableplot),
         color = "white",
         weight = 2,
         fillOpacity = 1,
@@ -78,42 +100,13 @@ server <- function(input,output, session){
         )
       ) %>%
       leaflet::addLegend(
-        pal = pal, values = ~vulhealth2020,
+        pal = pal, values = ~variableplot,
         opacity = 0.7, title = "Health Vulnerability </br> Score in 2020"
       )
-    
-    
-    
-    map$labels <- paste0(
-      "<strong> Country: </strong> ",
-      map$NAME, "<br/> ",
-      "<strong> medstaff2020: </strong> ",
-      map$projecteddeathperc2020, "<br/> "
-    ) %>%
-      lapply(htmltools::HTML)
-    
-    leafletdata2020_med <- leaflet(map) %>%
-      addTiles() %>%
-      setView(lng = 0, lat = 30, zoom = 2) %>%
-      addPolygons(
-        fillColor = ~ pal(projecteddeathperc2020),
-        color = "black",
-        weight = 2,
-        fillOpacity = 1,
-        label = ~labels,
-        highlight = highlightOptions(
-          color = "white",
-          bringToFront = TRUE
-        )
-      ) %>%
-      leaflet::addLegend(
-        pal = pal, values = ~projecteddeathperc2020,
-        opacity = 0.7, title = "projecteddeathperc2020"
-      )
-    
-    leafletdata2020
+  
   })
 }
+
 
 
 shinyApp(ui = ui, server = server)
