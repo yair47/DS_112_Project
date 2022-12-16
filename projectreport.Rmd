@@ -1,8 +1,15 @@
 ---
 title: "Comp/Stat 112 Report: The State of Global Health & Vulnerability as a Result of Climate Change"
-author: "Shelly Bai, Yair Castillo Palacios"
+author: "Shelly Bai and Yair Castillo Palacios"
 date: "12-15-2022"
-output: html_document
+output:
+  bookdown::html_document2:
+    split_by: none
+    toc: yes
+    toc_depth: 3
+    toc_float:
+      toc_collapsed: true
+    number_sections: false
 ---
 
 ```{r setup, include=FALSE, warning = FALSE, show_col_types = FALSE, message=FALSE}
@@ -282,6 +289,36 @@ p_displayfacet <- p_facet %>%
   ggplotly(tooltip = c('text')) %>%
 layout(title = list(text = paste0("Global Health Vulnerability by Continent")))
 
+#Finding mean over time for countries with data:
+medstaff_change <- id_health_medstaff %>% 
+  group_by(Name) %>% 
+  mutate(med_percchange = .data[["2020"]] - .data[["1995"]]) 
+  
+#Combining with existing data2020 for exporting purposes
+data2020 <- medstaff_change %>% 
+  select("ISO3", "Name", "med_percchange") %>% 
+  left_join(data2020)
+  
+  
+#selecting for data to be displayed
+medstaff_num <- data2020 %>% 
+  filter(!is.na(med_percchange)) %>% 
+  filter(!med_percchange == 0) %>% 
+  select("ISO3", "Name", "med_percchange", "gdp2020", "vulhealth2020", "medstaff2020", "pop2020", "projecteddeathperc2020") %>% 
+  arrange(med_percchange)
+
+#plotting data
+medstaff_plot <- ggplot(data = medstaff_num, aes(x = vulhealth2020, y = med_percchange, label = Name)) +
+  geom_segment(aes(x = vulhealth2020, xend = vulhealth2020, y = med_percchange, yend = 0, color = med_percchange), alpha = 1, size = 2) + 
+  geom_smooth(se = FALSE, color= "black", size = .5, alpha = .5) +
+  labs(title = "Change in Number of Medical Staff since 1995 to 2020", 
+       x = "Overall Health Vulnerability score", 
+       y = "Change in Number of Medical Staff", 
+       color = "Staff Count Increase/Decrease") + guides(size="none") + 
+  scale_colour_gradient2(low = 'red', high = 'light green', mid = "gray") + theme_bw() + scale_y_continuous(limits = c(-60, 60)) 
+
+#Finding the total global decrease over time
+#mean(medstaff_num$med_percchange,na.rm=T) 
 
 ```
 
@@ -289,10 +326,10 @@ layout(title = list(text = paste0("Global Health Vulnerability by Continent")))
 #write.csv(data2020,"C:\\Users\\seash\\Documents\\GitHub\\DS_112_Project\\data2020.csv", row.names = FALSE)
 ```
 
-## Climate-Change-induced effects on Global Health & Vulnerability 
+# Climate-Change-induced effects on Global Health & Vulnerability 
 
 
-Climate change is a phenomenon that is rapidly increasing health risks around the globe, but especially in developing nations. Many countries still rely on small-scale decentralized healthcare systems that heavily depend on the availability of healthcare personnel, and they likely do not have contingency plans in place if a crisis were to arise. These fragile systems are most susceptible to breaking down in the face of climate disaster. For our project, we wanted to examine climate-change-induced diseases from around the globe, specifically focusing on how they affect the health and vulnerability of those countries. To explore this data spatially, visit the [Shiny Interactive Map.](https://shellybaistats.shinyapps.io/FinalProjCompStat112/)
+Climate change is a phenomenon that is rapidly increasing health risks around the globe, but especially in developing nations. Many countries still rely on small-scale decentralized healthcare systems that heavily depend on the availability of healthcare personnel, and they likely do not have contingency plans in place if a crisis were to arise. These fragile systems are most susceptible to breaking down in the face of climate disaster. For our project, we wanted to examine climate-change-induced health impacts from around the globe, specifically focusing on vulnerability across time, regions of the world, and specific indicators of risk. To explore this data spatially, visit the [Shiny Interactive Map.](https://shellybaistats.shinyapps.io/FinalProjCompStat112/)
 
 This health vulnerability data comes from the [Notre Dame Global Adaptation Dataset](https://gain.nd.edu/our-work/country-index/), with information about climate change impacts on the health sector from the time period of 1995 to 2020. This dataset covers 192 countries recognized by the UN, and scores the countries' vulnerability from 0 to 1 (0 being the lowest vulnerability, and 1 being the highest vulnerability). This total vulnerability score is based on numerous factors, including projected change of deaths from climate change-induced diseases, access to improved sanitation facilities, and number of medical staff. 
 
@@ -345,16 +382,18 @@ You’ll notice that the lowest projected percentage of death still begins at at
 For detailed data on the percentage risk of each country, take a look at this table.
 
 ```{r, echo=FALSE, warning = FALSE, show_col_types = FALSE, message=FALSE}
+tabledata <- data2020 %>% 
+  select("Name", "pop2020", "gdp2020", "vulhealth2020", "projecteddeathperc2020")
 
 library(DT)
-DT::datatable(map@data[, c("ISO3", "NAME", "projecteddeathperc2020")],
+DT::datatable(tabledata, 
   rownames = FALSE, options = list(pageLength = 8))
 
 ```
 
 
 
-### Spatial Distribution
+### Spatial Distribution of Projected Percentage
 
 ```{r, echo=FALSE, warning = FALSE, show_col_types = FALSE, message=FALSE}
 leafletdata2020
@@ -372,12 +411,20 @@ leafletdata2020san
 ```
 Sanitation is an important indicator of  a country’s capacity to control infectious diseases. Sufficient sanitation is measured as the percentage of people in that country with access to clean sanitation facilities that can effectively prevent human, animal, and insect contact with excreta. Access to sanitation is crucial to build up preparedness to various natural disasters exacerbated by climate change, as climate effects lead to rise in infectious diseases. Looking at the spatial distribution, we notice that many developed countries have close to 90% accessibility, but many developed countries also have surprisingly low percentages, like France or Canada. This is a clue that some populations within those regions may have poor accessibility to sanitation, and are most at risk to climate events, even if the developed parts of the country have low vulnerability overall. We also see a lot of missing data for countries in Sub-Saharan Africa and in the Central area of Eurasia, an indicator that the sanitation accessibility there is poorly reported on and likely poorly maintained, and not resilient systems that could withstand climate disasters.
 
-### Global Medical Staff
+## Global Medical Staff
 The proportion of medical staff in a country is an important indicator of health outcomes and resilience to climate-change induced crises. Globally, the number of doctors, midwives, and nurses has decreased by over 6.7 people per 1000 from 1995 to 2020. The growth of medical staff has not has not kept pace with the growing population, especially as the world population has increased by over a third since 1995. 
-Lack of access to health personnel is a known obstacle to ensuring good health outcomes, especially in poorer countries. That’s because the number of medical professionals is only one part of the healthcare equation– in developed countries, factors like advanced medical technologies and organized healthcare administration can expand the reach of existing health personnel. However, this is not the case in developing countries.
-Though the proportion of medical staff may not tell us as much about the state of healthcare in developed countries, it’s a strong indicator of health outcomes in underdeveloped countries– places that are much more susceptible to climate-change induced strain. The decrease of the global medical staff ratio signals an important consideration about the resiliency of our healthcare systems. As the world faces increasingly severe climate impacts, we have to consider what a decrease of medical staff means for the populations who are most vulnerable.
 
-## Takeaways
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+
+ggplotly(medstaff_plot)
+
+```
+
+
+We see an overall trend of medical personnel decreasing across all countries, even those low on the general vulnerability side of the scale. It appears that vulnerability does not have high correlation with decrease in medical staff, but the decrease in staff may be a factor that affects vulnerable countries the most. Lack of access to health personnel is a known obstacle to ensuring good health outcomes in times of disease outbreak or health disasters, especially in poorer countries. The number of medical professionals per capita in a country is only one part of the healthcare equation– in developed countries, factors like advanced medical technologies and organized healthcare administration can expand the reach of existing health personnel. However, that is not the case in developing countries, who may rely on dispersed systems of healthcare, unreliable supply chains, and inconsistent accessibility of care.
+Though the proportion of medical staff may not tell us as much about the state of healthcare in low-risk countries, it’s a strong indicator of future risks for health outcomes in underdeveloped countries– places that are much more susceptible to climate-change induced strain. The decrease of the global medical staff ratio overall calls us to examine the resiliency of our existing healthcare systems. As the world faces increasingly severe climate impacts, we have to consider what a decrease of medical staff means for the populations who are most vulnerable.
+
+# Takeaways
 
 From this data, we gather that over time, countries have had high variation in terms of whether they have trended upwards or downwards in vulnerability- some countries have improved in their vulnerability scores over time, while others have remained stagnant. GDP and development scores are highly correlated with vulnerability, and geographic location also plays a role. The countries most vulnerable are in the global south, compounded by multiple levels of vulnerability: high risk of disease spread due to lacking sanitation facilities, high risk of extreme weather events or environmental challenges due to geographic location, and low existing resources and GDP to adapt against those sudden climate disasters. 
 
@@ -387,7 +434,7 @@ There is no one-size fits all solution to addressing health vulnerability global
 When we think about ways to examine and tackle global issues like climate change, we can use specific indicators and to identify the regions with most high risk, the specific reasons contributing to that vulnerability, and from there, develop specific, nuanced strategies to tackle those risks.
 
 
-## Appendix of Code:
+# Appendix of Code:
 
 [Github Repository](https://github.com/yair47/DS_112_Project)
 
@@ -465,7 +512,8 @@ layout(title = list(text = paste0("Global Health Vulnerability by Continent")))
 ```
 
 ### Specific Indicator Data
-Importing Data
+
+Importing Data:
 ```{r, echo=TRUE}
 #Importing datasets
 
@@ -517,7 +565,7 @@ data2020 <- pop2020 %>%
   left_join(vulhealth2020) %>% 
   left_join(medstaff2020) %>% 
   left_join(projecteddeathperc2020) %>% 
-  left_join(sanitation2020) 
+  left_join(sanitation2020)
   
 
 ```
@@ -640,11 +688,42 @@ leafletdata2020vul
 
 Calculationg mean medical staff over time:
 ```{r, echo=TRUE}
-id_health_medstaff <- id_health_medstaff %>% 
-  group_by(Name) %>% 
-  mutate(percchange = .data[["2020"]] - .data[["1995"]]) %>% 
-  arrange(desc(percchange))
 
-mean(id_health_medstaff$percchange,na.rm=T)
+#Finding mean over time for countries with data:
+medstaff_change <- id_health_medstaff %>% 
+  group_by(Name) %>% 
+  mutate(med_percchange = .data[["2020"]] - .data[["1995"]]) 
+  
+#Combining with existing data2020 for exporting purposes
+data2020 <- medstaff_change %>% 
+  select("ISO3", "Name", "med_percchange") %>% 
+  left_join(data2020)
+  
+  
+#selecting for data to be displayed
+medstaff_num <- data2020 %>% 
+  filter(!is.na(med_percchange)) %>% 
+  filter(!med_percchange == 0) %>% 
+  select("ISO3", "Name", "med_percchange", "gdp2020", "vulhealth2020", "medstaff2020", "pop2020", "projecteddeathperc2020") %>% 
+  arrange(med_percchange)
+
+#plotting data
+medstaff_plot <- ggplot(data = medstaff_num, aes(x = vulhealth2020, y = med_percchange, label = Name)) +
+  geom_segment(aes(x = vulhealth2020, xend = vulhealth2020, y = med_percchange, yend = 0, color = med_percchange), alpha = 1, size = 2) + 
+  geom_smooth(se = FALSE, color= "dark gray", size = .5) +
+  labs(title = "Change in Number of Medical Staff since 1995 to 2020", 
+       x = "Overall Health Vulnerability score", 
+       y = "Change in Number of Medical Staff", 
+       color = "Staff Count Increase/Decrease") + guides(size="none") + 
+  scale_colour_gradient2(low = 'red', high = 'light green', mid = "gray") + theme_bw() + scale_y_continuous(limits = c(-60, 60)) 
+
+ggplotly(medstaff_plot)
+
+#Finding the total global decrease over time
+mean(medstaff_num$med_percchange,na.rm=T) 
+```
+Note: For the Shiny app, relevant data was written into a new csv for easier processing, so the data wrangling for it doesn't appear in its .R file, and is documented here instead.
+```{r, echo = TRUE}
+write.csv(data2020,"C:\\Users\\seash\\Documents\\GitHub\\DS_112_Project\\data2020.csv", row.names = FALSE)
 ```
 

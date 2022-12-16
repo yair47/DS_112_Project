@@ -18,7 +18,7 @@ r_colors <- rgb(t(col2rgb(colors()) / 255))
 names(r_colors) <- colors()
 
 chosen <- c("Overall Health Vulnerabilty" = "vulhealth2020", "Projected Percent Increase of Climate-Change Induced Deaths"  = "projecteddeathperc2020",
-          "Sanitation Accessibility" = "sanitation2020", "Medical Staff in Developing Countries" = "medstaff2020")
+          "Sanitation Accessibility" = "sanitation2020", "Medical Staff in Developing Countries" = "medstaff2020", "Change in Medical Staff from 1995-2020" = "med_percchange")
 
 ui <- fluidPage(
   tags$head(HTML("<title>Health Indicator Data</title>")),
@@ -45,7 +45,7 @@ ui <- fluidPage(
                            br(),
                
                #Table output
-               h3("Table Data"),
+               h3("Search:"),
                DTOutput(outputId = "table"),
                )
  )
@@ -79,7 +79,7 @@ server <- function(input, output, session){
     map$labels <- paste0(
       "<strong> Country: </strong> ",
       map$NAME, "<br/> ",
-      "<strong> Overall Health Vulnerability 2020: </strong> ",
+      "<strong> Vulnerability score: </strong> ",
       map$variableplot, "<br/> "
     ) %>%
       lapply(htmltools::HTML)
@@ -100,7 +100,7 @@ server <- function(input, output, session){
       ) %>%
       leaflet::addLegend(
         pal = pal, values = ~variableplot,
-        opacity = 0.7, title = "Vulnerability Indicator </br> Score in 2020"
+        opacity = 0.7, title = "Vulnerability Indicator </br> in 2020"
       )
   
   })
