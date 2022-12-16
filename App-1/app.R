@@ -8,9 +8,11 @@ library(htmltools)
 library(DT)
 library(shinyjs)
 library(flexdashboard)
+library(rnaturalearth)
+
 
 library(readr)
-data2020 <- read_csv("~/GitHub/DS_112_Project/data2020.csv")
+data2020 <- read_csv("data2020.csv")
 
 r_colors <- rgb(t(col2rgb(colors()) / 255))
 names(r_colors) <- colors()
@@ -32,8 +34,6 @@ ui <- fluidPage(
                    choices = chosen
                    )
                  ),
-                 
-                 
               
                  mainPanel(
                    
@@ -52,7 +52,7 @@ ui <- fluidPage(
                
 )
 
-server <- function(input,output, session){
+server <- function(input, output, session){
 
   #renders the table of data
   output$table <- renderDT(data2020)
@@ -61,7 +61,6 @@ server <- function(input,output, session){
   #renders the leaflet
   output$mymap <- renderLeaflet({
     
-    library(rnaturalearth)
     map <- ne_countries()
     names(map)[names(map) == "iso_a3"] <- "ISO3"
     names(map)[names(map) == "name"] <- "NAME"
@@ -101,15 +100,12 @@ server <- function(input,output, session){
       ) %>%
       leaflet::addLegend(
         pal = pal, values = ~variableplot,
-        opacity = 0.7, title = "Health Vulnerability </br> Score in 2020"
+        opacity = 0.7, title = "Vulnerability Indicator </br> Score in 2020"
       )
   
   })
 }
 
-
-
 shinyApp(ui = ui, server = server)
 
-runApp("App-1")
 
