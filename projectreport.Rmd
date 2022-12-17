@@ -326,7 +326,7 @@ medstaff_plot <- ggplot(data = medstaff_num, aes(x = vulhealth2020, y = med_perc
 #write.csv(data2020,"C:\\Users\\seash\\Documents\\GitHub\\DS_112_Project\\data2020.csv", row.names = FALSE)
 ```
 
-# Climate-Change-induced effects on Global Health & Vulnerability 
+# Climate-Change-induced Effects on Global Health & Vulnerability 
 
 
 Climate change is a phenomenon that is rapidly increasing health risks around the globe, but especially in developing nations. Many countries still rely on small-scale decentralized healthcare systems that heavily depend on the availability of healthcare personnel, and they likely do not have contingency plans in place if a crisis were to arise. These fragile systems are most susceptible to breaking down in the face of climate disaster. For our project, we wanted to examine climate-change-induced health impacts from around the globe, specifically focusing on vulnerability across time, regions of the world, and specific indicators of risk. To explore this data spatially, visit the [Shiny Interactive Map.](https://shellybaistats.shinyapps.io/FinalProjCompStat112/)
@@ -412,7 +412,7 @@ leafletdata2020san
 Sanitation is an important indicator of  a country’s capacity to control infectious diseases. Sufficient sanitation is measured as the percentage of people in that country with access to clean sanitation facilities that can effectively prevent human, animal, and insect contact with excreta. Access to sanitation is crucial to build up preparedness to various natural disasters exacerbated by climate change, as climate effects lead to rise in infectious diseases. Looking at the spatial distribution, we notice that many developed countries have close to 90% accessibility, but many developed countries also have surprisingly low percentages, like France or Canada. This is a clue that some populations within those regions may have poor accessibility to sanitation, and are most at risk to climate events, even if the developed parts of the country have low vulnerability overall. We also see a lot of missing data for countries in Sub-Saharan Africa and in the Central area of Eurasia, an indicator that the sanitation accessibility there is poorly reported on and likely poorly maintained, and not resilient systems that could withstand climate disasters.
 
 ## Global Medical Staff
-The proportion of medical staff in a country is an important indicator of health outcomes and resilience to climate-change induced crises. Globally, the number of doctors, midwives, and nurses has decreased by over 6.7 people per 1000 from 1995 to 2020. The growth of medical staff has not has not kept pace with the growing population, especially as the world population has increased by over a third since 1995. 
+The proportion of medical staff in a country is an important indicator of that country's resilience to climate-change induced health crises. Globally, the number of doctors, midwives, and nurses has decreased by over 6.7 people per 1000 from 1995 to 2020. The growth of these medical staff has not has not kept pace with the growing population, especially as the world population has increased by over a third since 1995. 
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 
@@ -421,7 +421,7 @@ ggplotly(medstaff_plot)
 ```
 
 
-We see an overall trend of medical personnel decreasing across all countries, even those low on the general vulnerability side of the scale. It appears that vulnerability does not have high correlation with decrease in medical staff, but the decrease in staff may be a factor that affects vulnerable countries the most. Lack of access to health personnel is a known obstacle to ensuring good health outcomes in times of disease outbreak or health disasters, especially in poorer countries. The number of medical professionals per capita in a country is only one part of the healthcare equation– in developed countries, factors like advanced medical technologies and organized healthcare administration can expand the reach of existing health personnel. However, that is not the case in developing countries, who may rely on dispersed systems of healthcare, unreliable supply chains, and inconsistent accessibility of care.
+We see an overall trend of medical personnel decreasing across all countries, even those low on the general vulnerability side of the scale. It appears that vulnerability does not have high correlation with decrease in medical staff, but the decrease in staff may be a factor that affects vulnerable countries the most. Lack of access to health personnel is a known obstacle to ensuring good health outcomes in times of disease outbreak or health disasters, especially in poorer countries. It's important to note that the number of medical professionals per capita in a country is only one part of the healthcare equation– in developed countries, factors like advanced medical technologies and organized healthcare administration can expand the reach of existing health personnel. However, that is not the case in developing countries, who may rely on dispersed systems of healthcare, unreliable supply chains, and inconsistent accessibility of care.
 Though the proportion of medical staff may not tell us as much about the state of healthcare in low-risk countries, it’s a strong indicator of future risks for health outcomes in underdeveloped countries– places that are much more susceptible to climate-change induced strain. The decrease of the global medical staff ratio overall calls us to examine the resiliency of our existing healthcare systems. As the world faces increasingly severe climate impacts, we have to consider what a decrease of medical staff means for the populations who are most vulnerable.
 
 # Takeaways
@@ -429,9 +429,17 @@ Though the proportion of medical staff may not tell us as much about the state o
 From this data, we gather that over time, countries have had high variation in terms of whether they have trended upwards or downwards in vulnerability- some countries have improved in their vulnerability scores over time, while others have remained stagnant. GDP and development scores are highly correlated with vulnerability, and geographic location also plays a role. The countries most vulnerable are in the global south, compounded by multiple levels of vulnerability: high risk of disease spread due to lacking sanitation facilities, high risk of extreme weather events or environmental challenges due to geographic location, and low existing resources and GDP to adapt against those sudden climate disasters. 
 
 When it comes to tackling global issues as large and all-encompassing as climate change, narrowing down on its myriad effects feels like an impossible gambit, but honing in on the most vulnerable countries and the reasons for that vulnerability can help us find specific, measurable ways to mitigate those risks.
-There are multiple dimensions to examining the impact of global climate change. Even focusing within the health sector, there are many interwoven factors that exacerbate and compound upon each other to make specific populations most vulnerable. 
+There are multiple dimensions to examining the impact of global climate change. Even just within the health sector, many interwoven factors  exacerbate and compound upon each other to make specific populations most vulnerable. 
 There is no one-size fits all solution to addressing health vulnerability globally, but analyzing geospatial country data can be one tool in our toolkit to manage the humanitarian effects of a rapidly changing climate.
-When we think about ways to examine and tackle global issues like climate change, we can use specific indicators and to identify the regions with most high risk, the specific reasons contributing to that vulnerability, and from there, develop specific, nuanced strategies to tackle those risks.
+When we think about ways to examine and tackle global issues like climate change, we can use specific trends and indicators to identify the countries with most high risk, the specific reasons contributing to that vulnerability, and from there, develop specific, nuanced approaches to tackle those risks.
+
+
+
+# References:
+- Notre Dame Global Adaptation Initiative. (2022, July). Country Index - Notre Dame Global Adaptation Initiative. https://gain.nd.edu/our-work/country-index/
+- St Louis, M.E. & Hess, J.J., 2008. Climate change: impacts on and implications for global health. American journal of preventive medicine, 35(5), pp.527-38. 
+- Tol, R.S.J., Ebi, K. & Yohe, G.W., 2007. Infectious disease, development, and climate change: a scenario analysis. Environment and Development Economics, 12(5), pp.687-706. 
+
 
 
 # Appendix of Code:
